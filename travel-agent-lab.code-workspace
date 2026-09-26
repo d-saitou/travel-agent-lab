@@ -1,0 +1,29 @@
+{
+  "folders": [ // マルチルート・ワークスペース設定
+    {
+      "name": "Backend",
+      "path": "backend"
+    },
+    {
+      "name": "Frontend",
+      "path": "frontend"
+    },
+    {
+      "name": "Root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": { // ファイル/フォルダ非表示設定
+      "backend/": true,  // Root/backend  ※Root内非表示設定
+      "frontend/": true  // Root/frontend ※Root内非表示設定
+    },
+    "files.encoding": "utf8",
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.formatOnSave": false
+  }
+}
