@@ -1,0 +1,2 @@
+# infra/provision/ansible/group_vars/all.yml は、
+# infra/provision/provision-dev-env.sh によって .env を変換して自動生成される。

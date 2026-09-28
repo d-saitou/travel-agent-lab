@@ -1,0 +1,137 @@
+#!/bin/bash
+# Name:
+#   旅行記録・提案エージェント 開発環境プロビジョニングスクリプト
+# Description:
+#   以下の開発環境構築処理を実行する：
+#   1. システム要件チェック (root 権限、.env ファイル存在確認)
+#   2. Ansible インストール (未インストール時のみ)
+#   3. yq インストール (未インストール時のみ)
+#   4. .env → Ansible group_vars 変換
+#   5. Ansible Playbook (site.yml) 実行
+# Usage:
+#   ./provision-dev-env.sh
+# Note:
+#   - 実行前に プロジェクトルート/.env ファイルを作成し、ユーザー情報等を環境に合わせて変更すること。
+#   - root 権限で実行すること。
+set -euo pipefail
+
+# 変数定義
+SCRIPT_NAME=$(basename "$0")
+SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
+ANSIBLE_DIR="${SCRIPT_DIR}/ansible"
+ENV_PATH="${SCRIPT_DIR}/../../.env"
+ANSIBLE_GROUP_VARS_PATH="${ANSIBLE_DIR}/group_vars/all.yml"
+
+# Description:
+#   ログメッセージコンソール出力 (例: [2026-04-01 12:00:00][INFO] メッセージ)
+# Arguments:
+#   $1 - ログレベル (INFO、ERROR、等)
+#   $2 - メッセージ
+# Returns: なし
+output_log() {
+  local level="$1"
+  local message="$2"
+  local timestamp="$(date "+%Y/%m/%d %H:%M:%S")"
+  local log_msg="[${timestamp}][${level}][${SCRIPT_NAME}] ${message}"
+  if [ "${level}" = "ERROR" ]; then
+    echo "${log_msg}" >&2
+  else
+    echo "${log_msg}"
+  fi
+}
+
+# Description:
+#   システム要件チェック (root 権限、.env ファイル存在確認)
+# Arguments:
+#   なし
+# Returns:
+#   なし
+test_system_requirements() {
+  # 実行ユーザー判定
+  if [ "$(id -u)" -ne 0 ]; then
+    output_log "ERROR" "root 権限で実行してください"
+    exit 1
+  fi
+
+  # .env ファイル存在確認
+  if [ ! -f "${ENV_PATH}" ]; then
+    output_log "ERROR" "${ENV_PATH} が見つかりません"
+    exit 1
+  fi
+}
+
+# Description: Ansible インストール (未インストール時のみ)
+# Arguments:
+#   なし
+# Returns:
+#   なし
+install_ansible() {
+  if ! command -v ansible >/dev/null 2>&1; then
+    output_log "INFO" "Ansible インストール..."
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y ansible
+  fi
+}
+
+# Description: yq インストール (未インストール時のみ)
+# Arguments:
+#   なし
+# Returns:
+#   なし
+install_yq() {
+  if ! command -v yq >/dev/null 2>&1; then
+    output_log "INFO" "yq インストール..."
+    local yq_download_url=$(grep "^YQ_DOWNLOAD_URL=" "${ENV_PATH}" | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
+    yq_download_url=${yq_download_url:-"https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"}
+    wget -q "${yq_download_url}" -O /usr/bin/yq
+    chmod +x /usr/bin/yq
+  fi
+}
+
+# Description: .env → Ansible group_vars 変換
+# Arguments:
+#   なし
+# Returns:
+#   なし
+convert_env_to_ansible() {
+  output_log "INFO" ".env → Ansible group_vars 変換..."
+  mkdir -p "$(dirname "${ANSIBLE_GROUP_VARS_PATH}")"
+  grep -vE '^\s*#|^\s*$' "${ENV_PATH}" \
+    | sed 's/\\/\\\\/g' \
+    | yq eval-all -p=props -oy 'with_entries(.key |= downcase)' - \
+    > "${ANSIBLE_GROUP_VARS_PATH}"
+
+  local ansible_dir_owner_group="$(stat -c '%U:%G' "${ANSIBLE_DIR}")"
+  chown "${ansible_dir_owner_group}" "${ANSIBLE_GROUP_VARS_PATH}"
+}
+
+# Description: Ansible Playbook (site.yml) 実行
+# Arguments:
+#   なし
+# Returns:
+#   なし
+run_ansible_playbook() {
+  output_log "INFO" "Ansible playbook 実行..."
+  cd "${ANSIBLE_DIR}" || exit 1
+  ansible-playbook -i inventory site.yml
+}
+
+# Description:
+#   メイン処理
+# Arguments:
+#   なし
+# Returns:
+#   なし
+main() {
+  test_system_requirements
+
+  output_log "INFO" "セットアップ開始..."
+  install_ansible
+  install_yq
+  convert_env_to_ansible
+  run_ansible_playbook
+  output_log "INFO" "セットアップ完了"
+}
+
+main

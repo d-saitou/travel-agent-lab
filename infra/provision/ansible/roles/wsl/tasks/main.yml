@@ -1,0 +1,7 @@
+---
+- name: wsl.conf設定
+  ansible.builtin.copy:
+    dest: /etc/wsl.conf
+    content: |
+      [user]
+      default={{ app_user_name }}

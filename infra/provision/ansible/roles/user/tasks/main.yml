@@ -1,0 +1,23 @@
+---
+- name: アプリケーション用グループ作成
+  become: yes
+  ansible.builtin.group:
+    name: "{{ app_group_name }}"
+    gid: "{{ app_gid }}"
+
+- name: アプリケーション用ユーザー作成
+  ansible.builtin.user:
+    name: "{{ app_user_name }}"
+    uid: "{{ app_uid }}"
+    password: "{{ app_user_password | password_hash('sha512') }}"
+    shell: /bin/bash
+    create_home: yes
+    group: "{{ app_gid }}"
+    groups: sudo
+    append: yes
+
+- name: sudoers設定
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ app_user_name }}"
+    content: "{{ app_user_name }} ALL=(ALL) ALL"
+    mode: "0440"

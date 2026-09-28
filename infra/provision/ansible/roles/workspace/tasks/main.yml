@@ -1,0 +1,9 @@
+---
+- name: .env ファイルコピー ※ Windows ホスト側で作成した .env をコンテナ内で利用するためコピー
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../.env"
+    dest: "/home/{{ app_user_name }}/{{ git_repo_name }}/.env"
+    force: no
+    mode: '0644'
+    owner: "{{ app_uid }}"
+    group: "{{ app_gid }}"

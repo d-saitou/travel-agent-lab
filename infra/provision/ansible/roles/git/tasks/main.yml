@@ -1,0 +1,17 @@
+---
+- name: Git 設定
+  ansible.builtin.git_config:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    scope: global
+  loop:
+    - { name: "user.name", value: "{{ git_user_name }}" }
+    - { name: "user.email", value: "{{ git_user_email }}" }
+
+- name: Git リポジトリクローン
+  ansible.builtin.git:
+    repo: "{{ git_repo_url }}"
+    dest: "/home/{{ app_user_name }}/{{ git_repo_name }}"
+    version: "{{ git_repo_branch }}"
+    update: no
+    force: no
