@@ -1,4 +1,12 @@
 ---
+- name: Ansible 用一時ディレクトリ作成 ※警告対策
+  ansible.builtin.file:
+    path: "/home/{{ app_user_name }}/.ansible/tmp"
+    state: directory
+    mode: '0755'
+    owner: "{{ app_uid }}"
+    group: "{{ app_gid }}"
+
 - name: .env ファイルコピー ※ Windows ホスト側で作成した .env をコンテナ内で利用するためコピー
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../.env"
