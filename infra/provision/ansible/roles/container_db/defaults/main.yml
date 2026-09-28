@@ -1,3 +1,6 @@
 ---
 # DB コンテナ用 secrets ディレクトリパス
 db_secrets_dir: "/home/{{ app_user_name }}/{{ git_repo_name }}/infra/container/db/secrets"
+
+# DB バックアップ用ディレクトリパス
+db_backups_dir: "/home/{{ app_user_name }}/{{ git_repo_name }}/data/db/backups/postgres"

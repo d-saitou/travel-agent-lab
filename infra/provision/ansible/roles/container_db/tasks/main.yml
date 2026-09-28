@@ -19,3 +19,11 @@
     - { path: "app_tx_user.secret", value: "{{ db_app_tx_user_password }}" }
     - { path: "app_rag_user.secret", value: "{{ db_app_rag_user_password }}" }
   no_log: true # コンソールパスワード表示防止
+
+- name: DB バックアップ用ディレクトリ作成
+  ansible.builtin.file:
+    path: "{{ db_backups_dir }}"
+    state: directory
+    owner: "{{ app_uid }}"
+    group: "{{ app_gid }}"
+    mode: '0700'
