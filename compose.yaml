@@ -27,6 +27,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./infra/container/db/initdb.d:/docker-entrypoint-initdb.d
+      - ./data/db/backups/postgres:/var/backups/postgres:ro
 
 secrets:
   db_postgres_user:

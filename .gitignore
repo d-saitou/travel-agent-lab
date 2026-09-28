@@ -4,3 +4,4 @@
 !.env.example
 infra/provision/ansible/group_vars/all.yml
 infra/**/secrets/
+data/
