@@ -3,8 +3,10 @@
     旅行記録・提案エージェント 開発環境構築スクリプト（WSL＋開発環境）
 .DESCRIPTION
     以下の開発環境構築処理を実行する：
-    1. システム要件チェック（WSL）
+    1. システム要件チェック（WSL, VS Code, VS Code Remote Development）
     2. WSL インスタンス構築
+    3. WSL インスタンスプロビジョニング実行 (/infra/provision/provision-dev-env.sh)
+    4. VS Code リモートセッション起動
 .NOTES
     - 実行前に プロジェクトルート/.env ファイルを作成し、ユーザー情報等を環境に合わせて変更すること。
 #>
@@ -59,6 +61,25 @@ function Get-File {
 
 <#
 .SYNOPSIS
+    Windows パス → WSL 内マウントパス変換
+.PARAMETER WindowsPath
+    Windows パス
+.DESCRIPTION
+    Windows のパスを WSL 内でアクセス可能なマウントパスに変換する。例: C:\path\to\dir → /mnt/c/path/to/dir
+#>
+function Convert-ToWslPath {
+  param([string]$WindowsPath)
+  $path = $WindowsPath -replace "\\", "/"
+  if ($path -match "^([A-Za-z]):(?<rest>.*)") {
+    $drive = $Matches[1].ToLower()
+    $rest = $Matches['rest']
+    return "/mnt/$drive$($rest.TrimEnd('/'))"
+  }
+  return $path
+}
+
+<#
+.SYNOPSIS
     システム要件チェック（WSL, Docker Desktop, VS Code, VS Code Remote Development）
 .DESCRIPTION
     以下のシステム要件が満たされているかチェックする：
@@ -73,6 +94,14 @@ function Test-SystemRequirements {
     throw "WSL が見つかりません"
   }
 
+  if (!(Get-Command code -ErrorAction SilentlyContinue)) {
+    throw "VS Code が見つかりません"
+  }
+
+  $isInstalledRemoteExt = code --list-extensions | Select-String "ms-vscode-remote.vscode-remote-extensionpack"
+  if (!$isInstalledRemoteExt) {
+    throw "VS Code に拡張 (ms-vscode-remote.vscode-remote-extensionpack) がインストールされていません"
+  }
 }
 
 <#
@@ -134,6 +163,19 @@ function Import-WSLInstance {
 
 <#
 .SYNOPSIS
+    WSL インスタンスプロビジョニング実行 (./provision-dev-env.sh)
+#>
+function Invoke-ProvisionScript {
+  Write-Log "WSL インスタンスプロビジョニング実行..."
+  $scriptWslPath = Convert-ToWslPath (Join-Path $PSScriptRoot "provision/provision-dev-env.sh")
+  wsl -d $env:WSL_INSTANCE_NAME -u root -- bash "$scriptWslPath"
+  if ($LASTEXITCODE -ne 0) {
+    throw "WSL インスタンスプロビジョニング実行失敗"
+  }
+}
+
+<#
+.SYNOPSIS
     WSL インスタンス停止
 .DESCRIPTION
     WSL インスタンスを停止する。
@@ -147,6 +189,18 @@ function Stop-WSLInstance {
   }
 }
 
+<#
+.SYNOPSIS
+    VS Code リモートセッション起動
+.DESCRIPTION
+    VS Code を起動し、WSL インスタンスとのリモートセッションを開始する。
+#>
+function Start-VSCode {
+  Write-Log "VS Code起動..."
+  $targetWorkspace = "/home/$($env:APP_USER_NAME)/$($env:GIT_REPO_NAME)/travel-agent-lab.code-workspace"
+  code --remote wsl+$($env:WSL_INSTANCE_NAME) $targetWorkspace
+}
+
 # メイン処理
 try {
   Write-Log "セットアップ開始..."
@@ -155,7 +209,9 @@ try {
   Read-Env
   Test-SystemRequirements
   Import-WSLInstance
+  Invoke-ProvisionScript
   Stop-WSLInstance
+  Start-VSCode
 
   Write-Log "セットアップ完了"
 } catch {

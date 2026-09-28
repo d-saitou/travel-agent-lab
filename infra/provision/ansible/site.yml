@@ -1,0 +1,16 @@
+---
+- name: ホスト環境セットアップ
+  hosts: localhost
+  become: yes
+  roles:
+    - packages
+    - user
+    - wsl
+
+- name: 開発環境セットアップ
+  hosts: localhost
+  become: yes
+  become_user: "{{ app_user_name }}"
+  roles:
+    - git
+    - workspace
