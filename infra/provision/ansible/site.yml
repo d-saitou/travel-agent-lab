@@ -14,3 +14,4 @@
   roles:
     - git
     - workspace
+    - container_db
