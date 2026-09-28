@@ -31,7 +31,8 @@
   },
   "extensions": {
     "recommendations": [
-      "ms-vscode-remote.vscode-remote-extensionpack" // [project(Dev Host)] Remote Development
+      "ms-vscode-remote.vscode-remote-extensionpack", // [project(Dev Host)] Remote Development
+      "ms-azuretools.vscode-docker",                  // [project(Dev Host)] Docker
     ]
   }
 }

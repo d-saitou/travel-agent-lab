@@ -3,7 +3,7 @@
     旅行記録・提案エージェント 開発環境構築スクリプト（WSL＋開発環境）
 .DESCRIPTION
     以下の開発環境構築処理を実行する：
-    1. システム要件チェック（WSL, VS Code, VS Code Remote Development）
+    1. システム要件チェック（WSL, Docker Desktop, VS Code, VS Code Remote Development）
     2. WSL インスタンス構築
     3. WSL インスタンスプロビジョニング実行 (/infra/provision/provision-dev-env.sh)
     4. VS Code リモートセッション起動
@@ -84,6 +84,7 @@ function Convert-ToWslPath {
 .DESCRIPTION
     以下のシステム要件が満たされているかチェックする：
     - WSL がインストールされていること
+    - Docker Desktop がインストールされており、起動していること
     - VS Code がインストールされていること
     - VS Code Remote Development 拡張がインストールされていること
 #>
@@ -92,6 +93,15 @@ function Test-SystemRequirements {
 
   if (!(Get-Command wsl -ErrorAction SilentlyContinue)) {
     throw "WSL が見つかりません"
+  }
+
+  if (!(Get-Command docker -ErrorAction SilentlyContinue)) {
+    throw "Docker CLI が見つかりません"
+  }
+
+  docker info > $null 2>&1
+  if ($LASTEXITCODE -ne 0) {
+    throw "Docker が起動していません"
   }
 
   if (!(Get-Command code -ErrorAction SilentlyContinue)) {
