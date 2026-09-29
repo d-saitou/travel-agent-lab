@@ -25,7 +25,7 @@ services:
       - db_app_tx_user
       - db_app_rag_user
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
       - ./infra/container/db/initdb.d:/docker-entrypoint-initdb.d
       - ./data/db/backups/postgres:/var/backups/postgres:ro
 
