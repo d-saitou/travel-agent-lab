@@ -1,5 +1,22 @@
 services:
 
+  # Backend (FastAPI)
+  backend:
+    image: llm-rag-agent-example-backend:development
+    build:
+      context: ./backend
+      dockerfile: ../infra/container/backend/Dockerfile
+      args:
+        BACKEND_PYTHON_IMAGE: "${BACKEND_PYTHON_IMAGE}"
+        BACKEND_UV_VERSION: "${BACKEND_UV_VERSION}"
+        APP_UID: "${APP_UID}"
+        APP_GID: "${APP_GID}"
+      target: development
+    volumes:
+      - ./backend:/app
+    tty: true        # uvプロジェクト初期化(uv init)前のみ必要
+    stdin_open: true # uvプロジェクト初期化(uv init)前のみ必要
+
   # DB (PostgreSQL + pgvector)
   db:
     build:
