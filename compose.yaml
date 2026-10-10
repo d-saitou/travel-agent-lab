@@ -1,5 +1,23 @@
 services:
 
+  # Frontend (Next.js)
+  frontend:
+    container_name: travel-agent-lab-frontend
+    image: travel-agent-lab-frontend:development
+    build:
+      context: ./frontend
+      dockerfile: ../infra/container/frontend/Dockerfile.init
+      args:
+        FRONTEND_NODE_VERSION: "${FRONTEND_NODE_VERSION}"
+        APP_UID: "${APP_UID}"
+        APP_GID: "${APP_GID}"
+      target: development
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - .:/app # 開発環境用：コンテナ内ソースホットリロード＋git管理のためルートをマウント
+
   # Backend (FastAPI)
   backend:
     container_name: travel-agent-lab-backend
