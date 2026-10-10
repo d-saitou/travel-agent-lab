@@ -20,6 +20,12 @@ ARG APP_GID
 ARG APP_USER_NAME
 ARG APP_GROUP_NAME
 
+# Python環境設定
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/backend \
+    UV_PROJECT_ENVIRONMENT=/app/backend/.venv
+
 # uvコピー
 COPY --from=uv /uv /uvx /bin/
 
@@ -27,9 +33,13 @@ COPY --from=uv /uv /uvx /bin/
 RUN groupadd --gid ${APP_GID} ${APP_GROUP_NAME} && \
     useradd --uid ${APP_UID} --gid ${APP_GID} --create-home --shell /bin/bash ${APP_USER_NAME}
 
+# アプリケーションディレクトリ作成
+RUN mkdir -p /app/backend/.venv && \
+    chown -R ${APP_UID}:${APP_GID} /app
+
 USER ${APP_USER_NAME}
 
-WORKDIR /app
+WORKDIR /app/backend
 
 # ========================================
 # 開発環境構築ステージ
@@ -43,6 +53,13 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
     rm -rf /var/lib/apt/lists/*
 
+# アプリケーションファイルコピー
+COPY --chown=${APP_UID}:${APP_GID} ./pyproject.toml ./uv.lock ./README.md ./
+COPY --chown=${APP_UID}:${APP_GID} ./src/ ./src/
+
 USER ${APP_USER_NAME}
 
-CMD ["bash"]
+# 依存関係インストール
+RUN uv sync --frozen
+
+CMD ["uv", "run", "python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "-m", "uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

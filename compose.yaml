@@ -2,7 +2,8 @@ services:
 
   # Backend (FastAPI)
   backend:
-    image: llm-rag-agent-example-backend:development
+    container_name: travel-agent-lab-backend
+    image: travel-agent-lab-backend:development
     build:
       context: ./backend
       dockerfile: ../infra/container/backend/Dockerfile
@@ -12,13 +13,24 @@ services:
         APP_UID: "${APP_UID}"
         APP_GID: "${APP_GID}"
       target: development
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+    ports:
+      - "8000:8000"
+      - "5678:5678" # 開発環境用：debugpyデバッグ
     volumes:
-      - ./backend:/app
-    tty: true        # uvプロジェクト初期化(uv init)前のみ必要
-    stdin_open: true # uvプロジェクト初期化(uv init)前のみ必要
+      - .:/app                          # 開発環境用：コンテナ内ソースホットリロード＋git管理のためルートをマウント
+      - backend_venv:/app/backend/.venv # 開発環境用：Python仮想環境ボリューム
 
   # DB (PostgreSQL + pgvector)
   db:
+    container_name: travel-agent-lab-db
     build:
       context: ./infra/container/db
       dockerfile: Dockerfile
@@ -55,4 +67,5 @@ secrets:
     file: ./infra/container/db/secrets/app_rag_user.secret
 
 volumes:
+  backend_venv:
   db_data:

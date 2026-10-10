@@ -1,0 +1,6 @@
+services:
+
+  backend:
+    command: sleep infinity # 二重起動防止：FastAPI は backend/.vscode/launch.json から起動
+    healthcheck:
+      disable: true

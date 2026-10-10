@@ -1,0 +1,43 @@
+{
+  "name": "Backend Dev Container",
+  "dockerComposeFile": [
+    "../../compose.yaml",
+    "../../compose.devcontainer.yaml"
+  ],
+  "service": "backend",
+  "remoteUser": "appuser",
+  "updateRemoteUserUID": false, // Dev Container 起動時毎回匿名コンテナ作成対応
+  "workspaceFolder": "/app/backend",
+  "postStartCommand": "uv sync --frozen",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "files.encoding": "utf8",
+        "files.eol": "\n",
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": false,
+        "[python]": { // travel-agent-lab.code-workspaceの"python"セクションと一致させること
+          "editor.tabSize": 4,
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "always"
+          }
+        },
+        "python.defaultInterpreterPath": "/app/backend/.venv/bin/python",
+        "python.analysis.extraPaths": [
+          "/app/backend"
+        ],
+        "python.terminal.activateEnvInSelectedTerminal": true
+      }
+    }
+  }
+}

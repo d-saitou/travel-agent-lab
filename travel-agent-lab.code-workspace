@@ -14,9 +14,10 @@
     }
   ],
   "settings": {
-    "files.exclude": { // ファイル/フォルダ非表示設定
-      "backend/": true,  // Root/backend  ※Root内非表示設定
-      "frontend/": true  // Root/frontend ※Root内非表示設定
+    "files.exclude": { // Root内ファイル・フォルダ非表示設定
+      "backend/": true,  // Root/backend
+      "**/.venv": true,  // Root/backend/.venv ※名前付きボリュームマウント時空ディレクトリ作成対応
+      "frontend/": true  // Root/frontend
     },
     "files.encoding": "utf8",
     "files.eol": "\n",
@@ -25,6 +26,17 @@
     "editor.tabSize": 2,
     "editor.insertSpaces": true,
     "editor.formatOnSave": false,
+    "python.analysis.diagnosticSeverityOverrides": {
+      "reportMissingImports": "none" // インポート解決不可警告無効化(Python環境がbackendコンテナ内のため)
+    },
+    "[python]": { // .backend/devcontainer.jsonの"python"セクションと一致させること
+      "editor.tabSize": 4,
+      "editor.defaultFormatter": "charliermarsh.ruff",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll.ruff": "always"
+      }
+    },
     "[powershell]": {
       "files.encoding": "utf8bom"
     }
@@ -33,6 +45,8 @@
     "recommendations": [
       "ms-vscode-remote.vscode-remote-extensionpack", // [project(Dev Host)] Remote Development
       "ms-azuretools.vscode-docker",                  // [project(Dev Host)] Docker
+      "ms-python.python",                             // [project(Dev Host) / backend(Dev Container)] Python
+      "charliermarsh.ruff",                           // [project(Dev Host) / backend(Dev Container)] Ruff
     ]
   }
 }

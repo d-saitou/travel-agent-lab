@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { // VS Code 起動 (Backend 開発用 Dev Container)
+      "label": "Dev Host: Open Backend Dev Container Workspace",
+      "type": "shell",
+      "command": "code",
+      "args": ["-n", "${workspaceFolder}/backend"],
+      "problemMatcher": []
+    }
+  ]
+}

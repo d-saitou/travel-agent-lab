@@ -9,9 +9,6 @@ dependencies = [
     "uvicorn>=0.54.0",
 ]
 
-[project.scripts]
-app = "app:main"
-
 [build-system]
 requires = ["uv_build>=0.12.20,<0.13.0"]
 build-backend = "uv_build"
@@ -20,3 +17,22 @@ build-backend = "uv_build"
 dev = [
     "debugpy>=1.8.22",
 ]
+
+[tool.uv.build-backend]
+module-name = "server"
+
+[tool.ruff]
+target-version = "py314"
+indent-width = 4
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["server"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
