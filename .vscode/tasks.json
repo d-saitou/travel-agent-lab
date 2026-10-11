@@ -7,6 +7,13 @@
       "command": "code",
       "args": ["-n", "${workspaceFolder}/backend"],
       "problemMatcher": []
+    },
+    { // VS Code 起動 (Frontend 開発用 Dev Container)
+      "label": "Dev Host: Open Frontend Dev Container Workspace",
+      "type": "shell",
+      "command": "code",
+      "args": ["-n", "${workspaceFolder}/frontend"],
+      "problemMatcher": []
     }
   ]
 }

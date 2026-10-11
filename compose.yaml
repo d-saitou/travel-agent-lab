@@ -6,7 +6,7 @@ services:
     image: travel-agent-lab-frontend:development
     build:
       context: ./frontend
-      dockerfile: ../infra/container/frontend/Dockerfile.init
+      dockerfile: ../infra/container/frontend/Dockerfile
       args:
         FRONTEND_NODE_VERSION: "${FRONTEND_NODE_VERSION}"
         APP_UID: "${APP_UID}"
@@ -15,8 +15,13 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    ports:
+      - "3000:3000"
+      - "9229:9229" # 開発環境用：Node.jsデバッグ
     volumes:
       - .:/app # 開発環境用：コンテナ内ソースホットリロード＋git管理のためルートをマウント
+      - frontend_node_modules:/app/frontend/node_modules
+      - frontend_next_cache:/app/frontend/.next
 
   # Backend (FastAPI)
   backend:
@@ -85,5 +90,7 @@ secrets:
     file: ./infra/container/db/secrets/app_rag_user.secret
 
 volumes:
+  frontend_node_modules:
+  frontend_next_cache:
   backend_venv:
   db_data:

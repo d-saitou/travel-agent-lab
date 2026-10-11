@@ -15,9 +15,11 @@
   ],
   "settings": {
     "files.exclude": { // Root内ファイル・フォルダ非表示設定
-      "backend/": true,  // Root/backend
-      "**/.venv": true,  // Root/backend/.venv ※名前付きボリュームマウント時空ディレクトリ作成対応
-      "frontend/": true  // Root/frontend
+      "backend/": true,        // Root/backend
+      "**/.venv": true,        // Root/backend/.venv         ※名前付きボリュームマウント時空ディレクトリ作成対応
+      "frontend/": true,       // Root/frontend
+      "**/node_modules": true, // Root/frontend/node_modules ※名前付きボリュームマウント時空ディレクトリ作成対応
+      "**/.next": true         // Root/frontend/.next        ※名前付きボリュームマウント時空ディレクトリ作成対応
     },
     "files.encoding": "utf8",
     "files.eol": "\n",
@@ -26,10 +28,11 @@
     "editor.tabSize": 2,
     "editor.insertSpaces": true,
     "editor.formatOnSave": false,
+    "js/ts.validate.enabled": false, // js/tsエラー無効化(Node環境がfrontendコンテナ内のため)
     "python.analysis.diagnosticSeverityOverrides": {
       "reportMissingImports": "none" // インポート解決不可警告無効化(Python環境がbackendコンテナ内のため)
     },
-    "[python]": { // .backend/devcontainer.jsonの"python"セクションと一致させること
+    "[python]": { // ./backend/devcontainer.jsonの"python"セクションと一致させること
       "editor.tabSize": 4,
       "editor.defaultFormatter": "charliermarsh.ruff",
       "editor.formatOnSave": true,
@@ -47,6 +50,10 @@
       "ms-azuretools.vscode-docker",                  // [project(Dev Host)] Docker
       "ms-python.python",                             // [project(Dev Host) / backend(Dev Container)] Python
       "charliermarsh.ruff",                           // [project(Dev Host) / backend(Dev Container)] Ruff
+      "dbaeumer.vscode-eslint",                       // [project(Dev Host) / frontend(Dev Container)] ESLint
+      "esbenp.prettier-vscode",                       // [project(Dev Host) / frontend(Dev Container)] Prettier
+      "bradlc.vscode-tailwindcss",                    // [project(Dev Host) / frontend(Dev Container)] Tailwind CSS IntelliSense
+      "ms-vscode.js-debug-nightly"                    // [project(Dev Host) / frontend(Dev Container)] JavaScript Debugger (Nightly)
     ]
   }
 }
