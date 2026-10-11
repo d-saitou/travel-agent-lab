@@ -19,6 +19,12 @@
         "ms-vscode.js-debug-nightly" // JavaScript Debugger (Nightly)
       ],
       "settings": {
+        "workbench.colorCustomizations": {
+          "titleBar.activeBackground": "#472025",
+          "titleBar.activeForeground": "#FFFFFF",
+          "titleBar.inactiveBackground": "#2A1A1E",
+          "titleBar.inactiveForeground": "#A7B6CC"
+        },
         "files.encoding": "utf8",
         "files.eol": "\n",
         "files.insertFinalNewline": true,

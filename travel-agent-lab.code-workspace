@@ -14,6 +14,12 @@
     }
   ],
   "settings": {
+    "workbench.colorCustomizations": {
+      "titleBar.activeBackground": "#0E2A47",
+      "titleBar.activeForeground": "#FFFFFF",
+      "titleBar.inactiveBackground": "#091C34",
+      "titleBar.inactiveForeground": "#A7B6CC"
+    },
     "files.exclude": { // Root内ファイル・フォルダ非表示設定
       "backend/": true,        // Root/backend
       "**/.venv": true,        // Root/backend/.venv         ※名前付きボリュームマウント時空ディレクトリ作成対応

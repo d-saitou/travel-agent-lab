@@ -17,6 +17,12 @@
         "charliermarsh.ruff"
       ],
       "settings": {
+        "workbench.colorCustomizations": {
+          "titleBar.activeBackground": "#0B2F1E",
+          "titleBar.activeForeground": "#FFFFFF",
+          "titleBar.inactiveBackground": "#061E13",
+          "titleBar.inactiveForeground": "#A7B6CC"
+        },
         "files.encoding": "utf8",
         "files.eol": "\n",
         "files.insertFinalNewline": true,
