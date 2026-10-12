@@ -9,4 +9,5 @@
     name:
       - git
       - curl
+      - openssl
     state: present

@@ -16,3 +16,4 @@
     - workspace
     - docker
     - container_db
+    - container_llmproxy

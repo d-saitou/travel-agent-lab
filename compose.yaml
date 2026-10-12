@@ -81,6 +81,27 @@ services:
       - ./infra/container/db/initdb.d:/docker-entrypoint-initdb.d
       - ./data/db/backups/postgres:/var/backups/postgres:ro
 
+  # LLM Proxy (LiteLLM)
+  llmproxy:
+    container_name: travel-agent-lab-llmproxy
+    build:
+      context: ./infra/container/llmproxy
+      dockerfile: Dockerfile
+      args:
+        LLMPROXY_PYTHON_IMAGE: "${LLMPROXY_PYTHON_IMAGE}"
+        LLMPROXY_LITELLM_VERSION: "${LLMPROXY_LITELLM_VERSION}"
+        APP_UID: "${APP_UID}"
+        APP_GID: "${APP_GID}"
+    environment:
+      LLMPROXY_PROVIDER_MODEL: "${LLMPROXY_PROVIDER_MODEL}"
+      LLMPROXY_PROVIDER_API_KEY: "${LLMPROXY_PROVIDER_API_KEY}"
+    ports:
+      - "4000:4000"
+    secrets:
+      - llmproxy_litellm_master_key
+    volumes:
+      - ./infra/container/llmproxy/config/config.yaml:/app/config.yaml
+
 secrets:
   db_postgres_user:
     file: ./infra/container/db/secrets/postgres_user.secret
@@ -88,6 +109,8 @@ secrets:
     file: ./infra/container/db/secrets/app_tx_user.secret
   db_app_rag_user:
     file: ./infra/container/db/secrets/app_rag_user.secret
+  llmproxy_litellm_master_key:
+    file: ./infra/container/llmproxy/secrets/litellm_master_key.secret
 
 volumes:
   frontend_node_modules:
