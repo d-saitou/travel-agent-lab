@@ -1,4 +1,4 @@
-ARG FRONTEND_NODE_VERSION=26-bookworm-slim
+ARG FRONTEND_NODE_IMAGE=26-bookworm-slim
 ARG APP_UID=9999
 ARG APP_GID=9999
 ARG APP_USER_NAME=appuser
@@ -7,7 +7,7 @@ ARG APP_GROUP_NAME=appgroup
 # ========================================
 # 基礎環境構築ステージ
 # ========================================
-FROM node:${FRONTEND_NODE_VERSION} AS base
+FROM node:${FRONTEND_NODE_IMAGE} AS base
 
 ARG APP_UID
 ARG APP_GID
