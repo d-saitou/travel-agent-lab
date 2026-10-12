@@ -6,6 +6,7 @@
       "type": "shell",
       "command": "code",
       "args": ["-n", "${workspaceFolder}/backend"],
+      "presentation": {"close": true},
       "problemMatcher": []
     },
     { // VS Code 起動 (Frontend 開発用 Dev Container)
@@ -13,6 +14,16 @@
       "type": "shell",
       "command": "code",
       "args": ["-n", "${workspaceFolder}/frontend"],
+      "presentation": {"close": true},
+      "problemMatcher": []
+    },
+    { // VS Code ワークスペース推奨拡張機能インストール ※ワークスペース起動時自動実行
+      "label": "Dev Host: Install Recommended Extensions",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/infra/scripts/install-recommended-extensions.sh", "${workspaceFolder}/travel-agent-lab.code-workspace"],
+      "runOptions": {"runOn": "folderOpen"},
+      "presentation": {"close": true},
       "problemMatcher": []
     }
   ]
