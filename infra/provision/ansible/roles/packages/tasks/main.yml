@@ -8,4 +8,5 @@
   ansible.builtin.apt:
     name:
       - git
+      - curl
     state: present

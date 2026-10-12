@@ -17,14 +17,41 @@
       "presentation": {"close": true},
       "problemMatcher": []
     },
-    { // VS Code ワークスペース推奨拡張機能インストール ※ワークスペース起動時自動実行
+    { // Docker Compose Up (非表示タスク：launch.json 実行・デバッグ構成用)
+      "label": "Dev Host: Docker Compose Up",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "up", "-d"],
+      "problemMatcher": [],
+      "hide": true
+    },
+    { // 開発コンテナ準備完了待機 (非表示タスク：launch.json 実行・デバッグ構成用)
+      "label": "Internal: Wait Dev Containers Ready",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${workspaceFolder}/infra/scripts/wait-devcontainers-ready.sh"],
+      "problemMatcher": [],
+      "hide": true
+    },
+    { // フルスタックデバッグ準備 (非表示タスク：launch.json 実行・デバッグ構成用)
+      "label": "Dev Host: Prepare Full Stack Debug",
+      "dependsOn": [
+        "Dev Host: Docker Compose Up",
+        "Internal: Wait Dev Containers Ready"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "hide": true
+    },
+    { // VS Code ワークスペース推奨拡張機能インストール (非表示タスク：ワークスペース起動時自動実行用)
       "label": "Dev Host: Install Recommended Extensions",
       "type": "shell",
       "command": "bash",
       "args": ["${workspaceFolder}/infra/scripts/install-recommended-extensions.sh", "${workspaceFolder}/travel-agent-lab.code-workspace"],
       "runOptions": {"runOn": "folderOpen"},
       "presentation": {"close": true},
-      "problemMatcher": []
+      "problemMatcher": [],
+      "hide": true
     }
   ]
 }
