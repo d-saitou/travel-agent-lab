@@ -22,6 +22,12 @@ ANSIBLE_DIR="${SCRIPT_DIR}/ansible"
 ENV_PATH="${SCRIPT_DIR}/../../.env"
 ANSIBLE_GROUP_VARS_PATH="${ANSIBLE_DIR}/group_vars/all.yml"
 
+# スクリプト終了処理 (./infra/provision/ansible/group_vars/all.yml 削除)
+cleanup() {
+  rm -f "${ANSIBLE_GROUP_VARS_PATH}"
+}
+trap cleanup EXIT
+
 # Description:
 #   ログメッセージコンソール出力 (例: [2026-04-01 12:00:00][INFO] メッセージ)
 # Arguments:
@@ -101,6 +107,7 @@ convert_env_to_ansible() {
     | sed 's/\\/\\\\/g' \
     | yq eval-all -p=props -oy 'with_entries(.key |= downcase)' - \
     > "${ANSIBLE_GROUP_VARS_PATH}"
+  chmod 600 "${ANSIBLE_GROUP_VARS_PATH}"
 
   local ansible_dir_owner_group="$(stat -c '%U:%G' "${ANSIBLE_DIR}")"
   chown "${ansible_dir_owner_group}" "${ANSIBLE_GROUP_VARS_PATH}"

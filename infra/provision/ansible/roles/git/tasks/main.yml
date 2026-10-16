@@ -10,8 +10,9 @@
 
 - name: Git リポジトリクローン
   ansible.builtin.git:
-    repo: "{{ git_repo_url }}"
+    repo: "https://{{ git_user_name }}:{{ git_repo_token }}@github.com/{{ git_repo_owner }}/{{ git_repo_name }}.git"
     dest: "/home/{{ app_user_name }}/{{ git_repo_name }}"
     version: "{{ git_repo_branch }}"
     update: no
     force: no
+  no_log: true
