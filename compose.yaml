@@ -16,8 +16,8 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "3000:3000"
-      - "9229:9229" # 開発環境用：Node.jsデバッグ
+      - "${FRONTEND_APP_HOST_PORT}:3000"
+      - "${FRONTEND_DEBUG_HOST_PORT}:9229" # 開発環境用：Node.jsデバッグ
     volumes:
       - .:/app # 開発環境用：コンテナ内ソースホットリロード＋git管理のためルートをマウント
       - frontend_node_modules:/app/frontend/node_modules
@@ -45,8 +45,8 @@ services:
       timeout: 1s
       retries: 30
     ports:
-      - "8000:8000"
-      - "5678:5678" # 開発環境用：debugpyデバッグ
+      - "${BACKEND_APP_HOST_PORT}:8000"
+      - "${BACKEND_DEBUG_HOST_PORT}:5678" # 開発環境用：debugpyデバッグ
     volumes:
       - .:/app                          # 開発環境用：コンテナ内ソースホットリロード＋git管理のためルートをマウント
       - backend_venv:/app/backend/.venv # 開発環境用：Python仮想環境ボリューム
@@ -66,7 +66,7 @@ services:
       timeout: 1s
       retries: 30
     ports:
-      - "5432:5432"
+      - "${DB_HOST_PORT}:5432"
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
@@ -96,7 +96,7 @@ services:
       LLMPROXY_PROVIDER_MODEL: "${LLMPROXY_PROVIDER_MODEL}"
       LLMPROXY_PROVIDER_API_KEY: "${LLMPROXY_PROVIDER_API_KEY}"
     ports:
-      - "4000:4000"
+      - "${LLMPROXY_HOST_PORT}:4000"
     secrets:
       - llmproxy_litellm_master_key
     volumes:

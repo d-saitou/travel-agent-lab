@@ -7,6 +7,11 @@
     owner: "{{ app_uid }}"
     group: "{{ app_gid }}"
 
+- name: .vscode/launch.json 作成
+  ansible.builtin.template:
+    src: templates/launch.json.j2
+    dest: "{{ playbook_dir }}/../../../.vscode/launch.json"
+
 - name: .env ファイルコピー ※ Windows ホスト側で作成した .env をコンテナ内で利用するためコピー
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../.env"

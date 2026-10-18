@@ -19,7 +19,7 @@
       "request": "attach",
       "connect": {
         "host": "localhost",
-        "port": 5678
+        "port": {{ backend_debug_host_port }}
       },
       "pathMappings": [
         {
@@ -38,7 +38,7 @@
       "type": "node",
       "request": "attach",
       "address": "localhost",
-      "port": 9229,
+      "port": {{ frontend_debug_host_port }},
       "localRoot": "${workspaceFolder:Frontend}",
       "remoteRoot": "/app/frontend",
       "skipFiles": [
@@ -56,7 +56,7 @@
       "name": "Dev Host: Frontend Browser Debug",
       "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:3000",
+      "url": "http://localhost:{{ frontend_app_host_port }}",
       "webRoot": "${workspaceFolder:Frontend}"
     }
   ]
