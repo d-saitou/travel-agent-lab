@@ -1,10 +1,10 @@
 #!/bin/bash
 # Name:
-#   開発コンテナ起動待機スクリプト (tasks.json用)
+#   開発コンテナ起動待機スクリプト (tasks.json タスク用)
 # Description:
 #   backendコンテナ・frontendコンテナの起動を待機する
 # Usage:
-#   ./wait-devcontainers-ready.sh
+#   ./task-wait-devcontainers-ready.sh
 set -euo pipefail
 
 TIMEOUT_SECONDS=120

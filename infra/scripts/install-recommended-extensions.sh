@@ -4,24 +4,25 @@
 # Description:
 #   VS Code のワークスペース推奨拡張機能をインストールする
 # Usage:
-#   ./install-recommended-extensions.sh <project.code-workspace ファイルパス>
+#   ./install-recommended-extensions.sh
 set -euo pipefail
 
-workspace_file="${1:?ワークスペースファイルを指定してください}"
+WORKSPACE_DIR="$(cd -- "$(dirname -- "${0}")/../../" && pwd)"
+WORKSPACE_FILE="${WORKSPACE_DIR}/travel-agent-lab.code-workspace"
 
 # ワークスペース推奨拡張機能取得
-recommended_extensions=$(sed 's|//.*$||' "${workspace_file}" | yq -p=json -r '.extensions.recommendations[]')
+RECOMMENDED_EXTENSIONS=$(sed 's|//.*$||' "${WORKSPACE_FILE}" | yq -p=json -r '.extensions.recommendations[]')
 
 # インストール済み拡張機能取得（IDは小文字で比較）
-installed_extensions="$(code --list-extensions)"
+INSTALLED_EXTENSIONS="$(code --list-extensions)"
 
-while IFS= read -r extension; do
-  [[ -z "${extension}" ]] && continue
+while IFS= read -r EXTENSION; do
+  [[ -z "${EXTENSION}" ]] && continue
 
-  if ! grep -Fxiq -- "${extension}" <<< "${installed_extensions}"; then
-    echo "VS Code 拡張インストール実行: ${extension}"
-    code --install-extension "${extension}"
+  if ! grep -Fxiq -- "${EXTENSION}" <<< "${INSTALLED_EXTENSIONS}"; then
+    echo "VS Code 拡張インストール実行: ${EXTENSION}"
+    code --install-extension "${EXTENSION}"
   else
-    echo "VS Code 拡張インストール済み: ${extension}"
+    echo "VS Code 拡張インストール済み: ${EXTENSION}"
   fi
-done <<< "${recommended_extensions}"
+done <<< "${RECOMMENDED_EXTENSIONS}"

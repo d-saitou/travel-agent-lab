@@ -29,7 +29,7 @@
       "label": "Internal: Wait Dev Containers Ready",
       "type": "shell",
       "command": "bash",
-      "args": ["${workspaceFolder}/infra/scripts/wait-devcontainers-ready.sh"],
+      "args": ["${workspaceFolder}/infra/scripts/task-wait-devcontainers-ready.sh"],
       "problemMatcher": [],
       "hide": true
     },
@@ -43,11 +43,11 @@
       "problemMatcher": [],
       "hide": true
     },
-    { // VS Code ワークスペース推奨拡張機能インストール (非表示タスク：ワークスペース起動時自動実行用)
-      "label": "Dev Host: Install Recommended Extensions",
+    { // VS Code ワークスペース初回起動時セットアップ (非表示タスク：ワークスペース起動時自動実行用)
+      "label": "Dev Host: Setup Workspace",
       "type": "shell",
       "command": "bash",
-      "args": ["${workspaceFolder}/infra/scripts/install-recommended-extensions.sh", "${workspaceFolder}/travel-agent-lab.code-workspace"],
+      "args": ["${workspaceFolder}/infra/scripts/task-setup-workspace.sh"],
       "runOptions": {"runOn": "folderOpen"},
       "presentation": {"close": true},
       "problemMatcher": [],
