@@ -1,16 +1,7 @@
 ---
-- name: Linux 環境判定
-  ansible.builtin.command:
-    cmd: "/home/{{ app_user_name }}/{{ git_repo_name }}/infra/scripts/detect-linux-or-wsl.sh"
-  register: linux_environment
-  changed_when: false
-
-- name: WSL 向け設定
-  when: linux_environment.stdout | trim == "wsl"
-  block:
-    - name: wsl.conf設定
-      ansible.builtin.copy:
-        dest: /etc/wsl.conf
-        content: |
-          [user]
-          default={{ app_user_name }}
+- name: wsl.conf設定
+  ansible.builtin.copy:
+    dest: /etc/wsl.conf
+    content: |
+      [user]
+      default={{ app_user_name }}
