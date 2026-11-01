@@ -1,16 +1,19 @@
 # ディレクトリ・ファイル構成
 
-## 1. 構成
+## 1 構成
 
 ```text
 travel-agent-lab/                  # リポジトリルート
+ ├ .github/                        # GitHub設定（Issue起点の実装の実行基盤等） ※TBD
  ├ .vscode/                        # VS Codeフォルダー設定（launch.json、tasks.json等）
  ├ backend/                        # バックエンドアプリケーション
  │  ├ .devcontainer/               # Dev Container定義（バックエンド）
  │  └ ...                          # 内部構成は「ディレクトリ・ファイル構成（バックエンド）」で定義 ※TBD
  ├ data/                           # 永続化データ（DBバックアップ等） ※Git管理対象外
  ├ docs/                           # ドキュメント
- │  └ design/                      # 設計ドキュメント
+ │  ├ design/                      # 設計ドキュメント
+ │  ├ history/                     # 開発経緯
+ │  └ notes/                       # 生成AI活用等のメモ
  ├ frontend/                       # フロントエンドアプリケーション
  │  ├ .devcontainer/               # Dev Container定義（フロントエンド）
  │  └ ...                          # 内部構成は「ディレクトリ・ファイル構成（フロントエンド）」で定義 ※TBD
@@ -28,14 +31,18 @@ travel-agent-lab/                  # リポジトリルート
  ├ .env                            # 環境変数定義 ※Git管理対象外
  ├ .env.example                    # 環境変数定義テンプレート
  ├ .gitignore                      # Git管理対象外ファイル定義
+ ├ AGENTS.md                       # 生成AIへの指示・ルール（共通）
+ ├ CLAUDE.md                       # 生成AIへの指示・ルール（Claude Code用）
  ├ compose.devcontainer.yaml       # Composeファイル（Dev Container用の上書き設定）
  ├ compose.yaml                    # Composeファイル（全コンテナの定義）
  ├ LICENSE                         # ライセンス
  ├ README.md                       # プロジェクト概要
- └ travel-agent-lab.code-workspace # VS Codeワークスペース定義（Dev Host：WSL 2）
+ └ travel-agent-lab.code-workspace # VS Codeワークスペース定義（Dev Host）
 ```
 
-## 2. ディレクトリ・ファイル構成変更ルール
+シークレット・証明書・`.gitattributes`等の配置は「開発環境」で決定し、本構成に反映する。※TBD
+
+## 2 ディレクトリ・ファイル構成変更ルール
 
 - フロントエンドの実装とバックエンドの実装を相互に混在させない。
 - インフラ設定とアプリケーションの業務ロジックを分離する。
