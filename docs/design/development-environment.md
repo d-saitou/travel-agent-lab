@@ -56,6 +56,7 @@ flowchart TB
   %% 開発者
   Dev -->|"操作"| VSCodeUI
   Dev -->|"動作確認"| Browser
+  Dev -.->|"スクリプト実行"| Bootstrap
 
   %% ホスト・各環境の接続
   VSCodeUI <-->|"リモート接続"| VSCodeExt
