@@ -24,9 +24,7 @@
 ## ツール別
 
 ### Claude Code
-
 -
 
 ### GitHub Copilot
-
 -

@@ -8,7 +8,7 @@ travel-agent-lab/                  # リポジトリルート
  ├ .vscode/                        # VS Codeフォルダー設定（launch.json、tasks.json等）
  ├ backend/                        # バックエンドアプリケーション
  │  ├ .devcontainer/               # Dev Container定義（バックエンド）
- │  └ ...                          # 内部構成は「ディレクトリ・ファイル構成（バックエンド）」で定義 ※TBD
+ │  └ ...                          # ※内部構成は別ドキュメントで定義
  ├ data/                           # 永続化データ（DBバックアップ等） ※Git管理対象外
  ├ docs/                           # ドキュメント
  │  ├ design/                      # 設計ドキュメント
@@ -16,7 +16,7 @@ travel-agent-lab/                  # リポジトリルート
  │  └ notes/                       # 生成AI活用等のメモ
  ├ frontend/                       # フロントエンドアプリケーション
  │  ├ .devcontainer/               # Dev Container定義（フロントエンド）
- │  └ ...                          # 内部構成は「ディレクトリ・ファイル構成（フロントエンド）」で定義 ※TBD
+ │  └ ...                          # ※内部構成は別ドキュメントで定義
  ├ infra/                          # インフラ構成・開発環境構築
  │  ├ container/                   # コンテナ定義（Dockerfile、マウント用ファイル等）
  │  │  ├ backend/                  # コンテナ定義（バックエンド）
@@ -39,8 +39,6 @@ travel-agent-lab/                  # リポジトリルート
  ├ README.md                       # プロジェクト概要
  └ travel-agent-lab.code-workspace # VS Codeワークスペース定義（Dev Host）
 ```
-
-シークレット・証明書・`.gitattributes`等の配置は「開発環境」で決定し、本構成に反映する。※TBD
 
 ## 2 ディレクトリ・ファイル構成変更ルール
 
