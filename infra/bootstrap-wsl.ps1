@@ -43,16 +43,12 @@ function Write-Log {
     [string]$Message
   )
   $text = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')][$Level][$ScriptName] $Message"
+  $esc = [char]27  # ANSI エスケープ（PS 5.1 では `e が使えない）
   switch ($Level) {
-    "WARN"  { $color = "Yellow"; $bold = $true }
-    "ERROR" { $color = "Red";    $bold = $true }
-    default { $color = "Gray";   $bold = $false }
+    "WARN"  { Write-Host "$esc[38;5;208m$text$esc[0m" }  # オレンジ
+    "ERROR" { Write-Host "$esc[31m$text$esc[0m" }        # 赤
+    default { Write-Host $text -ForegroundColor Gray }
   }
-  if ($bold) {
-    $esc = [char]27  # ANSI エスケープ（PS 5.1 では `e が使えない）
-    $text = "$esc[1m$text$esc[0m"
-  }
-  Write-Host $text -ForegroundColor $color
 }
 
 <#

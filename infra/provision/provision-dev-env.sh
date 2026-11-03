@@ -11,8 +11,9 @@
 # Usage:
 #   ./provision-dev-env.sh <secrets.txt ファイルパス>
 # Note:
-#   - secrets.txt は bootstrap-wsl.ps1 から WSL パス形式で渡される。リポジトリ外に配置すること。
-#   - 実行前に プロジェクトルート/.env ファイルを作成し、ユーザー情報等を環境に合わせて変更すること。
+#   - 実行前に .env.example をコピーして .env を作成し、設定等を環境に合わせて変更すること。
+#   - 実行前に secrets.txt.example をコピーして secrets.txt を作成し、機密情報を設定すること。
+#   - 環境構築完了後、secrets.txt は直ちに削除すること。
 #   - root 権限で実行すること。
 set -euo pipefail
 
@@ -24,9 +25,14 @@ ENV_PATH="${SCRIPT_DIR}/../../.env"
 SECRETS_PATH="${1:-}"
 ANSIBLE_GROUP_VARS_PATH="${ANSIBLE_DIR}/group_vars/all.yml"
 
-# スクリプト終了処理 (./infra/provision/ansible/group_vars/all.yml 削除)
+# スクリプト終了処理
 cleanup() {
+  # ./infra/provision/ansible/group_vars/all.yml 削除
   rm -f "${ANSIBLE_GROUP_VARS_PATH}"
+  # secrets.txt 削除警告表示
+  if [ -n "${SECRETS_PATH}" ] && [ -f "${SECRETS_PATH}" ]; then
+    show_secrets_warning
+  fi
 }
 trap cleanup EXIT
 
@@ -41,11 +47,12 @@ output_log() {
   local message="$2"
   local timestamp="$(date "+%Y/%m/%d %H:%M:%S")"
   local log_msg="[${timestamp}][${level}][${SCRIPT_NAME}] ${message}"
-  if [ "${level}" = "ERROR" ]; then
-    echo "${log_msg}" >&2
-  else
-    echo "${log_msg}"
-  fi
+  local esc=$'\033'
+  case "${level}" in
+    ERROR) echo "${esc}[31m${log_msg}${esc}[0m" >&2 ;;
+    WARN)  echo "${esc}[38;5;208m${log_msg}${esc}[0m" ;;
+    *)     echo "${log_msg}" ;;
+  esac
 }
 
 # Description:
@@ -131,6 +138,20 @@ run_ansible_playbook() {
   output_log "INFO" "Ansible playbook 実行..."
   cd "${ANSIBLE_DIR}" || exit 1
   ansible-playbook -i inventory site.yml
+}
+
+# Description:
+#   secrets.txt 削除警告表示
+# Arguments:
+#   なし
+# Returns:
+#   なし
+show_secrets_warning() {
+  output_log "WARN" ""
+  output_log "WARN" "secrets.txt を直ちに削除してください！"
+  output_log "WARN" "平文の機密情報（パスワード・APIキー）が残っています。"
+  output_log "WARN" "対象: ${SECRETS_PATH}"
+  output_log "WARN" ""
 }
 
 # Description:
