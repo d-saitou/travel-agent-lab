@@ -94,23 +94,25 @@ services:
         APP_GID: "${APP_GID}"
     environment:
       LLMPROXY_PROVIDER_MODEL: "${LLMPROXY_PROVIDER_MODEL}"
-      LLMPROXY_PROVIDER_API_KEY: "${LLMPROXY_PROVIDER_API_KEY}"
     ports:
       - "${LLMPROXY_HOST_PORT}:4000"
     secrets:
       - llmproxy_litellm_master_key
+      - llmproxy_provider_api_key
     volumes:
       - ./infra/container/llmproxy/config/config.yaml:/app/config.yaml
 
 secrets:
   db_postgres_user:
-    file: ./infra/container/db/secrets/postgres_user.secret
+    file: ${SECRETS_DIR}/postgres_user.secret
   db_app_tx_user:
-    file: ./infra/container/db/secrets/app_tx_user.secret
+    file: ${SECRETS_DIR}/app_tx_user.secret
   db_app_rag_user:
-    file: ./infra/container/db/secrets/app_rag_user.secret
+    file: ${SECRETS_DIR}/app_rag_user.secret
   llmproxy_litellm_master_key:
-    file: ./infra/container/llmproxy/secrets/litellm_master_key.secret
+    file: ${SECRETS_DIR}/litellm_master_key.secret
+  llmproxy_provider_api_key:
+    file: ${SECRETS_DIR}/llmproxy_provider_api_key.secret
 
 volumes:
   frontend_node_modules:

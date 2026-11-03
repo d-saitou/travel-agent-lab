@@ -1,7 +1,7 @@
 ---
-- name: LLMProxy コンテナ用 secrets ディレクトリ作成
+- name: コンテナ用 secrets ディレクトリ作成 ※ワークスペース外 (.env の SECRETS_DIR)
   ansible.builtin.file:
-    path: "{{ llmproxy_secrets_dir }}"
+    path: "{{ secrets_dir }}"
     state: directory
     owner: "{{ app_uid }}"
     group: "{{ app_gid }}"
@@ -9,7 +9,7 @@
 
 - name: LiteLLM master キーファイル生成
   ansible.builtin.shell:
-    cmd: "openssl rand -hex 32 > {{ llmproxy_litellm_master_key_file }}"
+    cmd: "umask 077 && openssl rand -hex 32 > {{ llmproxy_litellm_master_key_file }}"
     creates: "{{ llmproxy_litellm_master_key_file }}"
 
 - name: LiteLLM master キーファイル権限設定
@@ -18,3 +18,12 @@
     owner: "{{ app_uid }}"
     group: "{{ app_gid }}"
     mode: '0600'
+
+- name: LLM プロバイダ API キーファイル作成 ※ secrets.txt の値を使用
+  ansible.builtin.copy:
+    dest: "{{ llmproxy_provider_api_key_file }}"
+    content: "{{ llmproxy_provider_api_key }}"
+    owner: "{{ app_uid }}"
+    group: "{{ app_gid }}"
+    mode: '0600'
+  no_log: true # コンソール API キー表示防止

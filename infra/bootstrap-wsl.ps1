@@ -8,28 +8,78 @@
     3. WSL インスタンスプロビジョニング実行 (/infra/provision/provision-dev-env.sh)
     4. VS Code リモートセッション起動
 .NOTES
-    - 実行前に プロジェクトルート/.env ファイルを作成し、ユーザー情報等を環境に合わせて変更すること。
+    - 実行前に .env.example をコピーして .env を作成し、設定等を環境に合わせて変更すること。
+    - 実行前に secrets.txt.example をコピーして secrets.txt を作成し、機密情報を設定すること。
+    - 環境構築完了後、secrets.txt は直ちに削除すること。
+.PARAMETER SecretsPath
+    secrets.txt ファイルパス
+.EXAMPLE
+    .\bootstrap-wsl.ps1 -SecretsPath C:\wsl\secrets.txt
 #>
+param(
+  [Parameter(Mandatory = $true)]
+  [string]$SecretsPath
+)
 $ErrorActionPreference = "Stop"
 $ScriptName = $MyInvocation.MyCommand.Name
 
 <#
 .SYNOPSIS
     ログメッセージコンソール出力
-.PARAMETER Message
-    出力メッセージ文字列
 .PARAMETER Level
     ログレベル文字列
+.PARAMETER Message
+    出力メッセージ文字列
 .DESCRIPTION
     タイムスタンプとログレベルを付与してコンソールに出力する。例: [2026-04-01 12:00:00][INFO] メッセージ
 #>
 function Write-Log {
   param(
-    [string]$Message,
-    [string]$Level = "INFO"
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("INFO", "WARN", "ERROR")]
+    [string]$Level,
+    [Parameter(Mandatory = $true)]
+    [AllowEmptyString()]
+    [string]$Message
   )
-  $ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-  Write-Host "[$ts][$Level][$ScriptName] $Message"
+  $text = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')][$Level][$ScriptName] $Message"
+  switch ($Level) {
+    "WARN"  { $color = "Yellow"; $bold = $true }
+    "ERROR" { $color = "Red";    $bold = $true }
+    default { $color = "Gray";   $bold = $false }
+  }
+  if ($bold) {
+    $esc = [char]27  # ANSI エスケープ（PS 5.1 では `e が使えない）
+    $text = "$esc[1m$text$esc[0m"
+  }
+  Write-Host $text -ForegroundColor $color
+}
+
+<#
+.SYNOPSIS
+    改行コード CRLF → LF 変換
+.PARAMETER Path
+    変換対象ファイルパス
+.DESCRIPTION
+    ファイル内の CRLF を LF に変換して上書きする。WSL 内で使用するファイル用。
+    バイト単位で置換するため、文字エンコーディング (BOM 含む) は変更されない。CRLF が含まれない場合は書き込まない。
+#>
+function Convert-LineEndingToLf {
+  param([string]$Path)
+  $fullPath = (Resolve-Path $Path).Path
+  $bytes = [System.IO.File]::ReadAllBytes($fullPath)
+  $converted = New-Object System.Collections.Generic.List[byte] ($bytes.Length)
+  for ($i = 0; $i -lt $bytes.Length; $i++) {
+    if ($bytes[$i] -eq 0x0D -and ($i + 1) -lt $bytes.Length -and $bytes[$i + 1] -eq 0x0A) {
+      continue
+    }
+    $converted.Add($bytes[$i])
+  }
+  if ($converted.Count -eq $bytes.Length) {
+    return
+  }
+  Write-Log "INFO" "改行コード CRLF → LF 変換... ($fullPath)"
+  [System.IO.File]::WriteAllBytes($fullPath, $converted.ToArray())
 }
 
 <#
@@ -45,7 +95,7 @@ function Write-Log {
 function Get-File {
   param([string]$Url, [string]$Path)
   if (!(Test-Path $Path)) {
-    Write-Log "ファイルダウンロード開始... (${Url})"
+    Write-Log "INFO" "ファイルダウンロード開始... (${Url})"
     try {
       # Import-Module BitsTransfer
       # Start-BitsTransfer -Source $Url -Destination $Path -Priority Foreground -RetryTimeout 60 -RetryInterval 60 -ErrorAction Stop
@@ -66,8 +116,9 @@ function Get-File {
     Windows パス
 .DESCRIPTION
     Windows のパスを WSL 内でアクセス可能なマウントパスに変換する。例: C:\path\to\dir → /mnt/c/path/to/dir
+    ドライブレター形式のパスのみ変換対象。UNC パス (\\server\share) は変換されず、区切り文字のみ置換して返す。
 #>
-function Convert-ToWslPath {
+function Convert-WindowsPathToWsl {
   param([string]$WindowsPath)
   $path = $WindowsPath -replace "\\", "/"
   if ($path -match "^([A-Za-z]):(?<rest>.*)") {
@@ -89,7 +140,7 @@ function Convert-ToWslPath {
     - VS Code Remote Development 拡張がインストールされていること
 #>
 function Test-SystemRequirements {
-  Write-Log "システムチェック..."
+  Write-Log "INFO" "システムチェック..."
 
   if (!(Get-Command wsl -ErrorAction SilentlyContinue)) {
     throw "WSL が見つかりません"
@@ -123,11 +174,12 @@ function Test-SystemRequirements {
     指定された .env ファイルから環境変数を読み込み、PowerShell の環境変数として設定する。
 #>
 function Read-Env {
-  param($Path = "..\.env")
-  Write-Log ".env 環境変数読み込み..."
+  param($Path = (Join-Path $PSScriptRoot "..\.env"))
+  Write-Log "INFO" ".env 環境変数読み込み..."
   if (!(Test-Path $Path)) {
     throw ".env が見つかりません"
   }
+  Convert-LineEndingToLf $Path
 
   Get-Content $Path | ForEach-Object {
     if ($_ -match "^\s*#") { return }
@@ -144,15 +196,47 @@ function Read-Env {
 
 <#
 .SYNOPSIS
+    secrets.txt 検証
+.PARAMETER Path
+    secrets.txt ファイルパス
+.DESCRIPTION
+    secrets.txt が存在していることを検証し、改行コードを LF に変換して絶対パスを返す。
+#>
+function Initialize-SecretsFile {
+  param([string]$Path)
+  Write-Log "INFO" "secrets.txt 検証..."
+  if (!(Test-Path $Path -PathType Leaf)) {
+    throw "secrets.txt が見つかりません: $Path"
+  }
+  $fullPath = (Resolve-Path $Path).Path
+  Convert-LineEndingToLf $fullPath
+  return $fullPath
+}
+
+<#
+.SYNOPSIS
+    WSL インスタンス存在確認
+.PARAMETER Name
+    WSL インスタンス名
+.DESCRIPTION
+    指定した名前の WSL インスタンスが存在するかを返す。
+#>
+function Test-WSLInstanceExists {
+  param([string]$Name)
+  # wsl -l の出力は UTF-16 のため、文字化けで混入する NUL 文字を除去して比較する
+  $wslList = wsl -l -q | Out-String
+  $names = $wslList -replace "`0", "" -split "`r`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+  return [bool]($names -contains $Name)
+}
+
+<#
+.SYNOPSIS
     WSL インスタンス構築
 .DESCRIPTION
     WSL インスタンスが存在しない場合、新しいインスタンスを作成する。
 #>
 function Import-WSLInstance {
-  # $exists = wsl -l -q | ForEach-Object { $_.Trim() } | Where-Object { $_ -eq $env:WSL_INSTANCE_NAME }
-  $wslList = wsl -l -q | Out-String
-  $exists = $wslList -replace "`0", "" -split "`r`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" -and $_ -eq $env:WSL_INSTANCE_NAME }
-  if ($exists) {
+  if (Test-WSLInstanceExists $env:WSL_INSTANCE_NAME) {
     return
   }
   if (!(Test-Path $env:WSL_INSTANCE_PATH)) {
@@ -160,25 +244,29 @@ function Import-WSLInstance {
   }
   Get-File $env:WSL_DISTRO_IMAGE_URL $env:WSL_DISTRO_IMAGE_PATH
 
-  Write-Log "WSL インスタンス作成... (${env:WSL_INSTANCE_NAME})"
+  Write-Log "INFO" "WSL インスタンス作成... (${env:WSL_INSTANCE_NAME})"
   wsl --import $env:WSL_INSTANCE_NAME $env:WSL_INSTANCE_PATH $env:WSL_DISTRO_IMAGE_PATH
   if ($LASTEXITCODE -ne 0) {
     throw "WSL インスタンス作成失敗"
   }
   wsl --set-default $env:WSL_INSTANCE_NAME
   if ($LASTEXITCODE -ne 0) {
-    throw "WSL インスタンス規定設定失敗"
+    throw "WSL インスタンス既定設定失敗"
   }
 }
 
 <#
 .SYNOPSIS
     WSL インスタンスプロビジョニング実行 (./provision-dev-env.sh)
+.PARAMETER SecretsFullPath
+    secrets.txt ファイル絶対パス
 #>
 function Invoke-ProvisionScript {
-  Write-Log "WSL インスタンスプロビジョニング実行..."
-  $scriptWslPath = Convert-ToWslPath (Join-Path $PSScriptRoot "provision/provision-dev-env.sh")
-  wsl -d $env:WSL_INSTANCE_NAME -u root -- bash "$scriptWslPath"
+  param([string]$SecretsFullPath)
+  Write-Log "INFO" "WSL インスタンスプロビジョニング実行..."
+  $scriptWslPath = Convert-WindowsPathToWsl (Join-Path $PSScriptRoot "provision/provision-dev-env.sh")
+  $secretsWslPath = Convert-WindowsPathToWsl $SecretsFullPath
+  wsl -d $env:WSL_INSTANCE_NAME -u root -- bash "$scriptWslPath" "$secretsWslPath"
   if ($LASTEXITCODE -ne 0) {
     throw "WSL インスタンスプロビジョニング実行失敗"
   }
@@ -192,10 +280,10 @@ function Invoke-ProvisionScript {
     設定変更後にインスタンスの状態をリセットするために使用する。
 #>
 function Stop-WSLInstance {
-  Write-Log "WSL インスタンス停止... (${env:WSL_INSTANCE_NAME})"
+  Write-Log "INFO" "WSL インスタンス停止... (${env:WSL_INSTANCE_NAME})"
   wsl --terminate $env:WSL_INSTANCE_NAME
   if ($LASTEXITCODE -ne 0) {
-    Write-Log "WSL インスタンス停止失敗。処理続行..." "WARN"
+    Write-Log "WARN" "WSL インスタンス停止失敗。処理続行..."
   }
 }
 
@@ -206,25 +294,48 @@ function Stop-WSLInstance {
     VS Code を起動し、WSL インスタンスとのリモートセッションを開始する。
 #>
 function Start-VSCode {
-  Write-Log "VS Code起動..."
+  Write-Log "INFO" "VS Code起動..."
   $targetWorkspace = "/home/$($env:APP_USER_NAME)/$($env:GIT_REPO_NAME)/travel-agent-lab.code-workspace"
   code --remote wsl+$($env:WSL_INSTANCE_NAME) $targetWorkspace
 }
 
+<#
+.SYNOPSIS
+    secrets.txt 削除警告表示
+.PARAMETER Path
+    secrets.txt ファイルパス
+.DESCRIPTION
+    secrets.txt の即時削除を強調して警告表示する。
+#>
+function Show-SecretsWarning {
+  param([string]$Path)
+  Write-Log "WARN" ""
+  Write-Log "WARN" "secrets.txt を直ちに削除してください！"
+  Write-Log "WARN" "平文の機密情報（パスワード・APIキー）が残っています。"
+  Write-Log "WARN" "対象: $Path"
+  Write-Log "WARN" ""
+}
+
 # メイン処理
+$secretsFullPath = $null
 try {
-  Write-Log "セットアップ開始..."
+  Write-Log "INFO" "セットアップ開始..."
 
   Set-Location $PSScriptRoot
   Read-Env
+  $secretsFullPath = Initialize-SecretsFile $SecretsPath
   Test-SystemRequirements
   Import-WSLInstance
-  Invoke-ProvisionScript
+  Invoke-ProvisionScript $secretsFullPath
   Stop-WSLInstance
   Start-VSCode
 
-  Write-Log "セットアップ完了"
+  Write-Log "INFO" "セットアップ完了"
 } catch {
-  Write-Log $_.Exception.Message "ERROR"
+  Write-Log "ERROR" $_.Exception.Message
   exit 1
+} finally {
+  if ($secretsFullPath) {
+    Show-SecretsWarning $secretsFullPath
+  }
 }

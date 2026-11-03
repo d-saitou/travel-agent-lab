@@ -3,14 +3,15 @@
 #   旅行記録・提案エージェント 開発環境プロビジョニングスクリプト
 # Description:
 #   以下の開発環境構築処理を実行する：
-#   1. システム要件チェック (root 権限、.env ファイル存在確認)
+#   1. システム要件チェック (root 権限、.env・secrets.txt 存在確認)
 #   2. Ansible インストール (未インストール時のみ)
 #   3. yq インストール (未インストール時のみ)
-#   4. .env → Ansible group_vars 変換
+#   4. .env・secrets.txt → Ansible group_vars 変換
 #   5. Ansible Playbook (site.yml) 実行
 # Usage:
-#   ./provision-dev-env.sh
+#   ./provision-dev-env.sh <secrets.txt ファイルパス>
 # Note:
+#   - secrets.txt は bootstrap-wsl.ps1 から WSL パス形式で渡される。リポジトリ外に配置すること。
 #   - 実行前に プロジェクトルート/.env ファイルを作成し、ユーザー情報等を環境に合わせて変更すること。
 #   - root 権限で実行すること。
 set -euo pipefail
@@ -20,6 +21,7 @@ SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
 ANSIBLE_DIR="${SCRIPT_DIR}/ansible"
 ENV_PATH="${SCRIPT_DIR}/../../.env"
+SECRETS_PATH="${1:-}"
 ANSIBLE_GROUP_VARS_PATH="${ANSIBLE_DIR}/group_vars/all.yml"
 
 # スクリプト終了処理 (./infra/provision/ansible/group_vars/all.yml 削除)
@@ -47,7 +49,7 @@ output_log() {
 }
 
 # Description:
-#   システム要件チェック (root 権限、.env ファイル存在確認)
+#   システム要件チェック (root 権限、.env・secrets.txt 存在確認)
 # Arguments:
 #   なし
 # Returns:
@@ -62,6 +64,12 @@ test_system_requirements() {
   # .env ファイル存在確認
   if [ ! -f "${ENV_PATH}" ]; then
     output_log "ERROR" "${ENV_PATH} が見つかりません"
+    exit 1
+  fi
+
+  # secrets.txt存在確認
+  if [ -z "${SECRETS_PATH}" ] || [ ! -f "${SECRETS_PATH}" ]; then
+    output_log "ERROR" "secrets.txtが見つかりません (引数: ${SECRETS_PATH:-未指定})"
     exit 1
   fi
 }
@@ -95,15 +103,16 @@ install_yq() {
   fi
 }
 
-# Description: .env → Ansible group_vars 変換
+# Description: .env・secrets.txt → Ansible group_vars 変換
 # Arguments:
 #   なし
 # Returns:
 #   なし
 convert_env_to_ansible() {
-  output_log "INFO" ".env → Ansible group_vars 変換..."
+  output_log "INFO" ".env・secrets.txt → Ansible group_vars 変換..."
   mkdir -p "$(dirname "${ANSIBLE_GROUP_VARS_PATH}")"
-  grep -vE '^\s*#|^\s*$' "${ENV_PATH}" \
+  cat "${ENV_PATH}" <(echo) "${SECRETS_PATH}" \
+    | grep -vE '^\s*#|^\s*$' \
     | sed 's/\\/\\\\/g' \
     | yq eval-all -p=props -oy 'with_entries(.key |= downcase)' - \
     > "${ANSIBLE_GROUP_VARS_PATH}"

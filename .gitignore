@@ -2,8 +2,8 @@
 .env
 .env.*
 !.env.example
+secrets.txt
 .vscode/launch.json
 infra/.setup-completed
 infra/provision/ansible/group_vars/all.yml
-infra/**/secrets/
 data/

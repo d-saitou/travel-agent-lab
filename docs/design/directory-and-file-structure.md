@@ -37,6 +37,7 @@ travel-agent-lab/                  # リポジトリルート
  ├ compose.yaml                    # Composeファイル（全コンテナの定義）
  ├ LICENSE                         # ライセンス
  ├ README.md                       # プロジェクト概要
+ ├ secrets.txt.example             # 機密情報定義テンプレート
  └ travel-agent-lab.code-workspace # VS Codeワークスペース定義（Dev Host）
 ```
 
