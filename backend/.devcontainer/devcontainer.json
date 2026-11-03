@@ -13,8 +13,9 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-python.python",
-        "charliermarsh.ruff"
+        "ms-python.python",                // Python
+        "charliermarsh.ruff",              // Ruff
+        "bierner.github-markdown-preview"  // GitHub Markdown Preview
       ],
       "settings": {
         "workbench.colorCustomizations": {
