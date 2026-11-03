@@ -17,6 +17,9 @@
       "name": "Dev Host: Backend Debug",
       "type": "debugpy",
       "request": "attach",
+      "presentation": {
+        "hidden": true
+      },
       "connect": {
         "host": "localhost",
         "port": {{ backend_debug_host_port }}
@@ -37,6 +40,9 @@
       "name": "Dev Host: Frontend Debug",
       "type": "node",
       "request": "attach",
+      "presentation": {
+        "hidden": true
+      },
       "address": "localhost",
       "port": {{ frontend_debug_host_port }},
       "localRoot": "${workspaceFolder:Frontend}",
@@ -56,6 +62,9 @@
       "name": "Dev Host: Frontend Browser Debug",
       "type": "chrome",
       "request": "launch",
+      "presentation": {
+        "hidden": true
+      },
       "url": "http://localhost:{{ frontend_app_host_port }}",
       "webRoot": "${workspaceFolder:Frontend}"
     }

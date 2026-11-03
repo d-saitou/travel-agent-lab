@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    旅行記録・提案エージェント 開発環境構築スクリプト（WSL＋開発環境）
+    旅行履歴・提案エージェント WSLインスタンス・開発環境構築スクリプト
 .DESCRIPTION
     以下の開発環境構築処理を実行する：
     1. システム要件チェック（WSL, Docker Desktop, VS Code, VS Code Remote Development）
@@ -14,7 +14,7 @@
 .PARAMETER SecretsPath
     secrets.txt ファイルパス
 .EXAMPLE
-    .\bootstrap-wsl.ps1 -SecretsPath C:\wsl\secrets.txt
+    .\bootstrap-dev-env-wsl.ps1 -SecretsPath C:\wsl\secrets.txt
 #>
 param(
   [Parameter(Mandatory = $true)]

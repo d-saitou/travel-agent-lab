@@ -25,9 +25,9 @@ travel-agent-lab/                  # リポジトリルート
  │  │  └ llmproxy/                 # コンテナ定義（LLMプロキシ）
  │  ├ provision/                   # 開発環境構成管理
  │  │  ├ ansible/                  # Ansible定義（プレイブック等）
- │  │  └ provision-dev-env.sh      # 開発環境プロビジョニングスクリプト ※WSL 2内で実行
+ │  │  └ provision-dev-env.sh      # 開発環境プロビジョニングスクリプト ※WSLインスタンス内で実行
  │  ├ scripts/                     # 開発作業用スクリプト
- │  └ bootstrap-wsl.ps1            # WSL 2セットアップ・開発環境構築スクリプト ※Windows側で実行
+ │  └ bootstrap-dev-env-wsl.ps1    # WSLインスタンス・開発環境構築スクリプト ※Windows側で実行
  ├ .env                            # 環境変数定義 ※Git管理対象外
  ├ .env.example                    # 環境変数定義テンプレート
  ├ .gitignore                      # Git管理対象外ファイル定義

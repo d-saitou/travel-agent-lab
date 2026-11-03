@@ -130,7 +130,7 @@ flowchart TB
 
 TBD
 <!-- 記述予定内容：
-- 構築の流れ：環境構築用コピーの取得 → `bootstrap-wsl.ps1`（Windows側） → `provision-dev-env.sh`・Ansible（WSL 2内） → ローカルリポジトリのクローン
+- 構築の流れ：環境構築用コピーの取得 → `bootstrap-dev-env-wsl.ps1`（Windows側） → `provision-dev-env.sh`・Ansible（WSL 2内） → ローカルリポジトリのクローン
 - Windows側・WSL 2内それぞれの処理範囲
 - Dev Hostの作成内容（ディストリビューション、既定ユーザー）
 - Ansibleでプロビジョニングする内容（パッケージ、Git設定、docker CLI、AIコーディング支援ツール等）
