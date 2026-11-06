@@ -7,25 +7,18 @@
     group: "{{ app_gid }}"
     mode: '0700' # app_uid を指定してコンテナを起動するため 0700 に設定
 
-- name: DB パスワードファイル生成 ※既存ファイルは再生成しない
-  ansible.builtin.shell:
-    cmd: "umask 077 && openssl rand -hex 32 > {{ secrets_dir }}/{{ item }}"
-    creates: "{{ secrets_dir }}/{{ item }}"
-  loop:
-    - postgres_user.secret
-    - app_tx_user.secret
-    - app_rag_user.secret
-
-- name: DB パスワードファイル権限設定
-  ansible.builtin.file:
-    path: "{{ secrets_dir }}/{{ item }}"
+- name: DB パスワードファイル作成 ※ secrets.txt の値を使用
+  ansible.builtin.copy:
+    dest: "{{ secrets_dir }}/{{ item.file }}"
+    content: "{{ item.password }}"
     owner: "{{ app_uid }}"
     group: "{{ app_gid }}"
     mode: '0600' # app_uid を指定してコンテナを起動するため 0600 に設定
   loop:
-    - postgres_user.secret
-    - app_tx_user.secret
-    - app_rag_user.secret
+    - { file: postgres_user.secret, password: "{{ db_postgres_user_password }}" }
+    - { file: app_tx_user.secret, password: "{{ db_app_tx_user_password }}" }
+    - { file: app_rag_user.secret, password: "{{ db_app_rag_user_password }}" }
+  no_log: true # コンソール パスワード表示防止
 
 - name: DB バックアップ用ディレクトリ作成
   ansible.builtin.file:
