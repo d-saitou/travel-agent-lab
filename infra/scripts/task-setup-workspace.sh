@@ -46,6 +46,9 @@ if [[ "${ENVIRONMENT}" == "wsl" ]]; then
     # 任意キー入力待機
     read -r -n 1 -s -p "任意のキーを押すと終了します..." || true
     echo
+
+    # 完了フラグを作成せず終了 ※次回起動時に再確認する
+    exit 1
   fi
 fi
 

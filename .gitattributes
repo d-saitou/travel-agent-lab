@@ -1,0 +1,2 @@
+# 改行コードLF統一 ※ core.autocrlf=true のWindows環境で取得した場合も適用
+* text=auto eol=lf
