@@ -4,10 +4,11 @@
 # Description:
 #   以下の開発環境構築処理を実行する：
 #   1. システム要件チェック (root 権限、.env・secrets.txt 存在確認)
-#   2. Ansible インストール (未インストール時のみ)
-#   3. yq インストール (未インストール時のみ)
-#   4. .env・secrets.txt → Ansible group_vars 変換
-#   5. Ansible Playbook (site.yml) 実行
+#   2. apt 本体更新 (APT 内部リトライ無効)
+#   3. Ansible インストール (未インストール時のみ)
+#   4. yq インストール (未インストール時のみ)
+#   5. .env・secrets.txt → Ansible group_vars 変換
+#   6. Ansible Playbook (site.yml) 実行
 # Usage:
 #   ./provision-dev-env.sh <secrets.txt ファイルパス>
 # Note:
@@ -79,6 +80,19 @@ test_system_requirements() {
     output_log "ERROR" "secrets.txtが見つかりません (引数: ${SECRETS_PATH:-未指定})"
     exit 1
   fi
+}
+
+# Description: apt 本体更新 (APT 内部リトライ無効)
+# Arguments:
+#   なし
+# Returns:
+#   なし
+upgrade_apt() {
+  output_log "INFO" "apt 本体更新..."
+  export DEBIAN_FRONTEND=noninteractive
+  # パッケージ情報の取得失敗時は古い情報で続行せずエラー終了する
+  apt-get -o Acquire::Retries=0 update --error-on=any
+  apt-get -o Acquire::Retries=0 install -y --only-upgrade apt
 }
 
 # Description: Ansible インストール (未インストール時のみ)
@@ -164,6 +178,7 @@ main() {
   test_system_requirements
 
   output_log "INFO" "セットアップ開始..."
+  upgrade_apt
   install_ansible
   install_yq
   convert_env_to_ansible
