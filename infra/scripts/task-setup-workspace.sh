@@ -32,11 +32,11 @@ if [[ "${ENVIRONMENT}" == "wsl" ]]; then
     echo
     echo -e "\033[31mDocker Desktop の設定を確認してください\033[0m"
     echo -e "\033[31m1. Windows 側で Docker Desktop を起動する\033[0m"
-    echo -e "\033[31m2. Settings > General を開く\033[0m"
-    echo -e "\033[31m3. Use the WSL 2 based engine を有効にする\033[0m"
-    echo -e "\033[31m4. Settings > Resources > WSL Integration を開く\033[0m"
-    echo -e "\033[31m5. ubuntu-for-travel-agent-lab の連携を有効にする\033[0m"
-    echo -e "\033[31m6. Apply & Restart を実行する\033[0m"
+    echo -e "\033[31m2. Settings の General を開く\033[0m"
+    echo -e "\033[31m3. Choose Virtual Machine Manager (VMM) で WSL 2 を選択する\033[0m"
+    echo -e "\033[31m4. Settings の WSL integration を開く\033[0m"
+    echo -e "\033[31m5. Enable integration with additional distros で ${WSL_DISTRO_NAME:-このWSLインスタンス} を選択する\033[0m"
+    echo -e "\033[31m6. Apply & Restart Engine を実行する\033[0m"
 
     # ワークスペース再起動案内
     echo
@@ -44,7 +44,7 @@ if [[ "${ENVIRONMENT}" == "wsl" ]]; then
     echo
 
     # 任意キー入力待機
-    read -r -n 1 -s -p "任意のキーを押すと終了します..." || true
+    read -r -n 1 -s -p "任意のキーを押すとタスクを終了します..." || true
     echo
 
     # 完了フラグを作成せず終了 ※次回起動時に再確認する
