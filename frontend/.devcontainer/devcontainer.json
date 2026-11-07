@@ -18,7 +18,8 @@
         "dbaeumer.vscode-eslint",           // ESLint
         "esbenp.prettier-vscode",           // Prettier
         "bradlc.vscode-tailwindcss",        // Tailwind CSS IntelliSense
-        "bierner.github-markdown-preview"   // GitHub Markdown Preview
+        "bierner.github-markdown-preview",  // GitHub Markdown Preview
+        "anthropic.claude-code"             // Claude Code for VS Code
       ],
       "settings": {
         "workbench.colorCustomizations": {

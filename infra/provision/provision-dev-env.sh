@@ -173,6 +173,19 @@ run_ansible_playbook() {
 }
 
 # Description:
+#   VS Code ウィンドウ再読み込み案内表示
+# Arguments:
+#   なし
+# Returns:
+#   なし
+show_restart_notice() {
+  output_log "WARN" ""
+  output_log "WARN" "Claude Code の sandbox 設定を反映するため、VS Code のウィンドウを再読み込みしてください。"
+  output_log "WARN" "再読み込み後、Claude Code の /sandbox で有効になっていることを確認してください。"
+  output_log "WARN" ""
+}
+
+# Description:
 #   .env.secrets 削除警告表示
 # Arguments:
 #   なし
@@ -203,6 +216,7 @@ main() {
   convert_env_to_ansible
   run_ansible_playbook
   output_log "INFO" "セットアップ完了"
+  show_restart_notice
 }
 
 main

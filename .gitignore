@@ -1,9 +1,9 @@
-# Project
 .env
 .env.*
 !.env.example
 !.env.secrets.example
+.claude/settings.json
 .vscode/launch.json
+data/
 infra/.setup-completed
 infra/provision/ansible/group_vars/all.yml
-data/

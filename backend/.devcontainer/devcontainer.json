@@ -15,7 +15,8 @@
       "extensions": [
         "ms-python.python",                // Python
         "charliermarsh.ruff",              // Ruff
-        "bierner.github-markdown-preview"  // GitHub Markdown Preview
+        "bierner.github-markdown-preview", // GitHub Markdown Preview
+        "anthropic.claude-code"            // Claude Code for VS Code
       ],
       "settings": {
         "workbench.colorCustomizations": {

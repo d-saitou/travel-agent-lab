@@ -1,6 +1,6 @@
 ---
 # LiteLLM マスターキーファイルパス
-llmproxy_litellm_master_key_file: "{{ secrets_dir }}/litellm_master_key.secret"
+llmproxy_litellm_master_key_file: "/home/{{ app_user_name }}/{{ secrets_relative_path }}/litellm_master_key.secret"
 
 # LLM プロバイダ API キーファイルパス
-llmproxy_provider_api_key_file: "{{ secrets_dir }}/llmproxy_provider_api_key.secret"
+llmproxy_provider_api_key_file: "/home/{{ app_user_name }}/{{ secrets_relative_path }}/llmproxy_provider_api_key.secret"

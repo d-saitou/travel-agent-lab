@@ -1,16 +1,16 @@
 {
   "folders": [ // マルチルート・ワークスペース設定
-    {
+    { // Root ※先頭ディレクトリの .claude/settings.json が Claude Code によって読み込まれる
+      "name": "Root",
+      "path": "."
+    },
+    { // Backend
       "name": "Backend",
       "path": "backend"
     },
-    {
+    { // Frontend
       "name": "Frontend",
       "path": "frontend"
-    },
-    {
-      "name": "Root",
-      "path": "."
     }
   ],
   "settings": {
@@ -61,7 +61,8 @@
       "dbaeumer.vscode-eslint",           // ESLint
       "esbenp.prettier-vscode",           // Prettier
       "bradlc.vscode-tailwindcss",        // Tailwind CSS IntelliSense
-      "bierner.github-markdown-preview"   // GitHub Markdown Preview
+      "bierner.github-markdown-preview",  // GitHub Markdown Preview
+      "anthropic.claude-code"             // Claude Code for VS Code
     ]
   }
 }
