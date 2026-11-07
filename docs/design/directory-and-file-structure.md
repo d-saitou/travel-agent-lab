@@ -30,6 +30,7 @@ travel-agent-lab/                  # リポジトリルート
  │  └ bootstrap-dev-env-wsl.ps1    # WSLインスタンス・開発環境構築スクリプト ※Windows側で実行
  ├ .env                            # 環境変数定義 ※Git管理対象外
  ├ .env.example                    # 環境変数定義テンプレート
+ ├ .env.secrets.example            # 機密情報定義テンプレート
  ├ .gitattributes                  # Git属性定義
  ├ .gitignore                      # Git管理対象外ファイル定義
  ├ AGENTS.md                       # 生成AIへの指示・ルール（共通）
@@ -38,7 +39,6 @@ travel-agent-lab/                  # リポジトリルート
  ├ compose.yaml                    # Composeファイル（全コンテナの定義）
  ├ LICENSE                         # ライセンス
  ├ README.md                       # プロジェクト概要
- ├ secrets.txt.example             # 機密情報定義テンプレート
  └ travel-agent-lab.code-workspace # VS Codeワークスペース定義（Dev Host）
 ```
 

@@ -3,18 +3,18 @@
 #   旅行履歴・提案エージェント 開発環境プロビジョニングスクリプト
 # Description:
 #   以下の開発環境構築処理を実行する：
-#   1. システム要件チェック (root 権限、.env・secrets.txt 存在確認)
+#   1. システム要件チェック (root 権限、.env・.env.secrets 存在確認)
 #   2. apt 本体更新 (APT 内部リトライ無効)
 #   3. Ansible インストール (未インストール時のみ)
 #   4. yq インストール (未インストール時のみ)
-#   5. .env・secrets.txt → Ansible group_vars 変換
+#   5. .env・.env.secrets → Ansible group_vars 変換
 #   6. Ansible Playbook (site.yml) 実行
 # Usage:
-#   ./provision-dev-env.sh <secrets.txt ファイルパス>
+#   ./provision-dev-env.sh <.env.secrets ファイルパス>
 # Note:
 #   - 実行前に .env.example をコピーして .env を作成し、設定等を環境に合わせて変更すること。
-#   - 実行前に secrets.txt.example をコピーして secrets.txt を作成し、機密情報を設定すること。
-#   - 環境構築完了後、secrets.txt は直ちに削除すること。
+#   - 実行前に .env.secrets.example をコピーして .env.secrets を作成し、機密情報を設定すること。
+#   - 環境構築完了後、.env.secrets は直ちに削除すること。
 #   - root 権限で実行すること。
 set -euo pipefail
 
@@ -23,15 +23,15 @@ SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
 ANSIBLE_DIR="${SCRIPT_DIR}/ansible"
 ENV_PATH="${SCRIPT_DIR}/../../.env"
-SECRETS_PATH="${1:-}"
+ENV_SECRETS_PATH="${1:-}"
 ANSIBLE_GROUP_VARS_PATH="${ANSIBLE_DIR}/group_vars/all.yml"
 
 # スクリプト終了処理
 cleanup() {
   # ./infra/provision/ansible/group_vars/all.yml 削除
   rm -f "${ANSIBLE_GROUP_VARS_PATH}"
-  # secrets.txt 削除警告表示
-  if [ -n "${SECRETS_PATH}" ] && [ -f "${SECRETS_PATH}" ]; then
+  # .env.secrets 削除警告表示
+  if [ -n "${ENV_SECRETS_PATH}" ] && [ -f "${ENV_SECRETS_PATH}" ]; then
     show_secrets_warning
   fi
 }
@@ -57,7 +57,7 @@ output_log() {
 }
 
 # Description:
-#   システム要件チェック (root 権限、.env・secrets.txt 存在確認)
+#   システム要件チェック (root 権限、.env・.env.secrets 存在確認)
 # Arguments:
 #   なし
 # Returns:
@@ -75,9 +75,9 @@ test_system_requirements() {
     exit 1
   fi
 
-  # secrets.txt存在確認
-  if [ -z "${SECRETS_PATH}" ] || [ ! -f "${SECRETS_PATH}" ]; then
-    output_log "ERROR" "secrets.txtが見つかりません (引数: ${SECRETS_PATH:-未指定})"
+  # .env.secrets存在確認
+  if [ -z "${ENV_SECRETS_PATH}" ] || [ ! -f "${ENV_SECRETS_PATH}" ]; then
+    output_log "ERROR" ".env.secretsが見つかりません (引数: ${ENV_SECRETS_PATH:-未指定})"
     exit 1
   fi
 }
@@ -124,15 +124,15 @@ install_yq() {
   fi
 }
 
-# Description: .env・secrets.txt → Ansible group_vars 変換
+# Description: .env・.env.secrets → Ansible group_vars 変換
 # Arguments:
 #   なし
 # Returns:
 #   なし
 convert_env_to_ansible() {
-  output_log "INFO" ".env・secrets.txt → Ansible group_vars 変換..."
+  output_log "INFO" ".env・.env.secrets → Ansible group_vars 変換..."
   mkdir -p "$(dirname "${ANSIBLE_GROUP_VARS_PATH}")"
-  cat "${ENV_PATH}" <(echo) "${SECRETS_PATH}" \
+  cat "${ENV_PATH}" <(echo) "${ENV_SECRETS_PATH}" \
     | grep -vE '^\s*#|^\s*$' \
     | sed 's/\\/\\\\/g' \
     | yq eval-all -p=props -oy 'with_entries(.key |= downcase)' - \
@@ -155,16 +155,16 @@ run_ansible_playbook() {
 }
 
 # Description:
-#   secrets.txt 削除警告表示
+#   .env.secrets 削除警告表示
 # Arguments:
 #   なし
 # Returns:
 #   なし
 show_secrets_warning() {
   output_log "WARN" ""
-  output_log "WARN" "secrets.txt を直ちに削除してください！"
+  output_log "WARN" ".env.secrets を直ちに削除してください！"
   output_log "WARN" "平文の機密情報（パスワード・APIキー）が残っています。"
-  output_log "WARN" "対象: ${SECRETS_PATH}"
+  output_log "WARN" "対象: ${ENV_SECRETS_PATH}"
   output_log "WARN" ""
 }
 

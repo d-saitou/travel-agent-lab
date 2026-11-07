@@ -9,12 +9,12 @@
     4. VS Code リモートセッション起動
 .NOTES
     - 実行前に .env.example をコピーして .env を作成し、設定等を環境に合わせて変更すること。
-    - 実行前に secrets.txt.example をコピーして secrets.txt を作成し、機密情報を設定すること。
-    - 環境構築完了後、secrets.txt は直ちに削除すること。
+    - 実行前に .env.secrets.example をコピーして .env.secrets を作成し、機密情報を設定すること。
+    - 環境構築完了後、.env.secrets は直ちに削除すること。
 .PARAMETER SecretsPath
-    secrets.txt ファイルパス
+    .env.secrets ファイルパス
 .EXAMPLE
-    .\bootstrap-dev-env-wsl.ps1 -SecretsPath C:\wsl\secrets.txt
+    .\bootstrap-dev-env-wsl.ps1 -SecretsPath C:\wsl\.env.secrets
 #>
 param(
   [Parameter(Mandatory = $true)]
@@ -192,17 +192,17 @@ function Read-Env {
 
 <#
 .SYNOPSIS
-    secrets.txt 検証
+    .env.secrets 検証
 .PARAMETER Path
-    secrets.txt ファイルパス
+    .env.secrets ファイルパス
 .DESCRIPTION
-    secrets.txt が存在していることを検証し、改行コードを LF に変換して絶対パスを返す。
+    .env.secrets が存在していることを検証し、改行コードを LF に変換して絶対パスを返す。
 #>
-function Initialize-SecretsFile {
+function Initialize-EnvSecrets {
   param([string]$Path)
-  Write-Log "INFO" "secrets.txt 検証..."
+  Write-Log "INFO" ".env.secrets 検証..."
   if (!(Test-Path $Path -PathType Leaf)) {
-    throw "secrets.txt が見つかりません: $Path"
+    throw ".env.secrets が見つかりません: $Path"
   }
   $fullPath = (Resolve-Path $Path).Path
   Convert-LineEndingToLf $fullPath
@@ -255,7 +255,7 @@ function Import-WSLInstance {
 .SYNOPSIS
     WSL インスタンスプロビジョニング実行 (./provision-dev-env.sh)
 .PARAMETER SecretsFullPath
-    secrets.txt ファイル絶対パス
+    .env.secrets ファイル絶対パス
 #>
 function Invoke-ProvisionScript {
   param([string]$SecretsFullPath)
@@ -297,16 +297,16 @@ function Start-VSCode {
 
 <#
 .SYNOPSIS
-    secrets.txt 削除警告表示
+    .env.secrets 削除警告表示
 .PARAMETER Path
-    secrets.txt ファイルパス
+    .env.secrets ファイルパス
 .DESCRIPTION
-    secrets.txt の即時削除を強調して警告表示する。
+    .env.secrets の即時削除を強調して警告表示する。
 #>
 function Show-SecretsWarning {
   param([string]$Path)
   Write-Log "WARN" ""
-  Write-Log "WARN" "secrets.txt を直ちに削除してください！"
+  Write-Log "WARN" ".env.secrets を直ちに削除してください！"
   Write-Log "WARN" "平文の機密情報（パスワード・APIキー）が残っています。"
   Write-Log "WARN" "対象: $Path"
   Write-Log "WARN" ""
@@ -319,7 +319,7 @@ try {
 
   Set-Location $PSScriptRoot
   Read-Env
-  $secretsFullPath = Initialize-SecretsFile $SecretsPath
+  $secretsFullPath = Initialize-EnvSecrets $SecretsPath
   Test-SystemRequirements
   Import-WSLInstance
   Invoke-ProvisionScript $secretsFullPath

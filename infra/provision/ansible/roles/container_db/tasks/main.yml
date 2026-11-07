@@ -7,7 +7,7 @@
     group: "{{ app_gid }}"
     mode: '0700' # app_uid を指定してコンテナを起動するため 0700 に設定
 
-- name: DB パスワードファイル作成 ※ secrets.txt の値を使用
+- name: DB パスワードファイル作成 ※ .env.secrets の値を使用
   ansible.builtin.copy:
     dest: "{{ secrets_dir }}/{{ item.file }}"
     content: "{{ item.password }}"

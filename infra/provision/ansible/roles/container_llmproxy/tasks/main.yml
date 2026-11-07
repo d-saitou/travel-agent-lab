@@ -19,7 +19,7 @@
     group: "{{ app_gid }}"
     mode: '0600'
 
-- name: LLM プロバイダ API キーファイル作成 ※ secrets.txt の値を使用
+- name: LLM プロバイダ API キーファイル作成 ※ .env.secrets の値を使用
   ansible.builtin.copy:
     dest: "{{ llmproxy_provider_api_key_file }}"
     content: "{{ llmproxy_provider_api_key }}"
