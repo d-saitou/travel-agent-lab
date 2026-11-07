@@ -6,7 +6,8 @@
     1. システム要件チェック（WSL, Docker Desktop, VS Code, VS Code Remote Development）
     2. WSL インスタンス構築
     3. WSL インスタンスプロビジョニング実行 (/infra/provision/provision-dev-env.sh)
-    4. VS Code リモートセッション起動
+    4. WSL 初回セットアップ完了処理
+    5. VS Code リモートセッション起動
 .NOTES
     - 実行前に .env.example をコピーして .env を作成し、設定等を環境に合わせて変更すること。
     - 実行前に .env.secrets.example をコピーして .env.secrets を作成し、機密情報を設定すること。
@@ -76,33 +77,6 @@ function Convert-LineEndingToLf {
   }
   Write-Log "INFO" "改行コード CRLF → LF 変換... ($fullPath)"
   [System.IO.File]::WriteAllBytes($fullPath, $converted.ToArray())
-}
-
-<#
-.SYNOPSIS
-    ファイルダウンロード
-.PARAMETER Url
-    ダウンロード URL
-.PARAMETER Path
-    保存先パス
-.DESCRIPTION
-    指定URLからファイルをダウンロードし、指定パスに保存する。既にファイルが存在する場合はダウンロードをスキップする。
-#>
-function Get-File {
-  param([string]$Url, [string]$Path)
-  if (!(Test-Path $Path)) {
-    Write-Log "INFO" "ファイルダウンロード開始... (${Url})"
-    try {
-      # Import-Module BitsTransfer
-      # Start-BitsTransfer -Source $Url -Destination $Path -Priority Foreground -RetryTimeout 60 -RetryInterval 60 -ErrorAction Stop
-      Invoke-WebRequest -Uri $Url -OutFile $Path
-    } catch {
-      if (Test-Path $Path) {
-        Remove-Item $Path -Force
-      }
-      throw "ダウンロード失敗: $($_.Exception.Message)"
-    }
-  }
 }
 
 <#
@@ -177,7 +151,7 @@ function Read-Env {
   }
   Convert-LineEndingToLf $Path
 
-  Get-Content $Path | ForEach-Object {
+  Get-Content $Path -Encoding UTF8 | ForEach-Object {
     if ($_ -match "^\s*#") { return }
     if ($_ -match "^\s*$") { return }
     if ($_ -notmatch "=") { return }
@@ -231,19 +205,19 @@ function Test-WSLInstanceExists {
 .DESCRIPTION
     WSL インスタンスが存在しない場合、新しいインスタンスを作成する。
 #>
-function Import-WSLInstance {
+function Install-WSLInstance {
   if (Test-WSLInstanceExists $env:WSL_INSTANCE_NAME) {
     return
   }
-  if (!(Test-Path $env:WSL_INSTANCE_PATH)) {
-    New-Item -ItemType Directory -Path $env:WSL_INSTANCE_PATH | Out-Null
+  $parentPath = Split-Path -Parent $env:WSL_INSTANCE_PATH
+  if (!(Test-Path $parentPath)) {
+    New-Item -ItemType Directory -Path $parentPath | Out-Null
   }
-  Get-File $env:WSL_DISTRO_IMAGE_URL $env:WSL_DISTRO_IMAGE_PATH
 
   Write-Log "INFO" "WSL インスタンス作成... (${env:WSL_INSTANCE_NAME})"
-  wsl --import $env:WSL_INSTANCE_NAME $env:WSL_INSTANCE_PATH $env:WSL_DISTRO_IMAGE_PATH
+  wsl --install $env:WSL_DISTRIBUTION --name $env:WSL_INSTANCE_NAME --location $env:WSL_INSTANCE_PATH --no-launch
   if ($LASTEXITCODE -ne 0) {
-    throw "WSL インスタンス作成失敗"
+    throw "WSL インスタンス作成失敗 (WSL が古い場合は wsl --update を実行してください)"
   }
   wsl --set-default $env:WSL_INSTANCE_NAME
   if ($LASTEXITCODE -ne 0) {
@@ -285,6 +259,35 @@ function Stop-WSLInstance {
 
 <#
 .SYNOPSIS
+    WSL 初回セットアップ完了処理
+.DESCRIPTION
+    Ubuntu の初回セットアップを標準入力なしで完了させ、既定ユーザーで起動できることを確認する。
+    初回は getpwuid(1000) エラーが表示される場合があるため、終了コードでは判定しない。
+#>
+function Complete-WSLFirstRun {
+  Write-Log "INFO" "WSL 初回セットアップ完了処理..."
+  $emptyInput = [System.IO.Path]::GetTempFileName()
+  try {
+    $process = Start-Process wsl -ArgumentList "-d", $env:WSL_INSTANCE_NAME -RedirectStandardInput $emptyInput -NoNewWindow -PassThru
+    if (!$process.WaitForExit(300000)) {
+      $process.Kill()
+      throw "WSL 初回セットアップ完了処理タイムアウト"
+    }
+  } finally {
+    Remove-Item $emptyInput -Force
+  }
+  Write-Log "INFO" "WSL 初回セットアップ完了処理終了 (getpwuid(1000) エラーは無視してください)"
+
+  Write-Log "INFO" "WSL 既定ユーザー確認..."
+  $defaultUser = (wsl -d $env:WSL_INSTANCE_NAME -- whoami | Out-String).Trim()
+  if ($defaultUser -ne $env:APP_USER_NAME) {
+    throw "WSL 既定ユーザー不正: $defaultUser"
+  }
+  Write-Log "INFO" "WSL 既定ユーザー確認終了 ($defaultUser)"
+}
+
+<#
+.SYNOPSIS
     VS Code リモートセッション起動
 .DESCRIPTION
     VS Code を起動し、WSL インスタンスとのリモートセッションを開始する。
@@ -321,9 +324,10 @@ try {
   Read-Env
   $secretsFullPath = Initialize-EnvSecrets $SecretsPath
   Test-SystemRequirements
-  Import-WSLInstance
+  Install-WSLInstance
   Invoke-ProvisionScript $secretsFullPath
   Stop-WSLInstance
+  Complete-WSLFirstRun
   Start-VSCode
 
   Write-Log "INFO" "セットアップ完了"

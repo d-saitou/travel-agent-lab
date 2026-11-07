@@ -21,3 +21,11 @@
     dest: "/etc/sudoers.d/{{ app_user_name }}"
     content: "{{ app_user_name }} ALL=(ALL) ALL"
     mode: "0440"
+
+- name: Ubuntu Insights 無効化（WSL 初回セットアップの同意確認を省略）
+  ansible.builtin.shell: |
+    command -v ubuntu-insights >/dev/null 2>&1 || exit 0
+    for source in linux wsl_setup ubuntu_release_upgrader; do
+      su "{{ app_user_name }}" -c "ubuntu-insights consent $source -s=false" >/dev/null
+    done
+  changed_when: false
