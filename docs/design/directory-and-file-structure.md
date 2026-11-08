@@ -4,6 +4,7 @@
 
 ```text
 travel-agent-lab/                  # リポジトリルート
+ ├ .claude/                        # Claude Code設定 ※settings.jsonのみAnsibleで生成、Git管理対象外
  ├ .github/                        # GitHub設定（Issue起点の実装の実行基盤等） ※TBD
  ├ .vscode/                        # VS Codeフォルダー設定（launch.json、tasks.json等）
  ├ backend/                        # バックエンドアプリケーション
