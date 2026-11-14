@@ -5,3 +5,6 @@
     content: |
       [user]
       default={{ app_user_name }}
+
+      [network]
+      hostname={{ wsl_instance_name }}

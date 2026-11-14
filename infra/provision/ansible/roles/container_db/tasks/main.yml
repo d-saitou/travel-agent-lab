@@ -1,12 +1,4 @@
 ---
-- name: コンテナ用 secrets ディレクトリ作成 ※ワークスペース外 (.env の SECRETS_DIR)
-  ansible.builtin.file:
-    path: "/home/{{ app_user_name }}/{{ secrets_relative_path }}"
-    state: directory
-    owner: "{{ app_uid }}"
-    group: "{{ app_gid }}"
-    mode: '0700' # app_uid を指定してコンテナを起動するため 0700 に設定
-
 - name: DB パスワードファイル作成 ※ .env.secrets の値を使用
   ansible.builtin.copy:
     dest: "/home/{{ app_user_name }}/{{ secrets_relative_path }}/{{ item.file }}"

@@ -19,8 +19,9 @@
 - name: sudoers設定
   ansible.builtin.copy:
     dest: "/etc/sudoers.d/{{ app_user_name }}"
-    content: "{{ app_user_name }} ALL=(ALL) ALL"
+    content: "{{ app_user_name }} ALL=(ALL) ALL\n"
     mode: "0440"
+    validate: /usr/sbin/visudo -cf %s
 
 - name: Ubuntu Insights 無効化（WSL 初回セットアップの同意確認を省略）
   ansible.builtin.shell: |

@@ -1,12 +1,4 @@
 ---
-- name: コンテナ用 secrets ディレクトリ作成 ※ワークスペース外 (.env の SECRETS_DIR)
-  ansible.builtin.file:
-    path: "/home/{{ app_user_name }}/{{ secrets_relative_path }}"
-    state: directory
-    owner: "{{ app_uid }}"
-    group: "{{ app_gid }}"
-    mode: '0700'
-
 - name: LiteLLM master キーファイル生成
   ansible.builtin.shell:
     cmd: "umask 077 && openssl rand -hex 32 > {{ llmproxy_litellm_master_key_file }}"
