@@ -1,0 +1,39 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "backend"
+    },
+    {
+      "path": "../docs",
+      "name": "docs"
+    }
+  ],
+  "settings": {
+    "workbench.colorCustomizations": {
+      "titleBar.activeBackground": "#0B2F1E",
+      "titleBar.activeForeground": "#FFFFFF",
+      "titleBar.inactiveBackground": "#061E13",
+      "titleBar.inactiveForeground": "#A7B6CC"
+    },
+    "files.encoding": "utf8",
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.formatOnSave": false,
+    "[python]": {
+      "editor.tabSize": 4,
+      "editor.defaultFormatter": "charliermarsh.ruff",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll.ruff": "always"
+      }
+    },
+    "python.defaultInterpreterPath": "/app/backend/.venv/bin/python",
+    "python.analysis.extraPaths": [
+      "/app/backend"
+    ]
+  }
+}

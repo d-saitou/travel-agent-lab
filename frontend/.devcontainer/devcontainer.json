@@ -7,8 +7,8 @@
   "service": "frontend",
   "remoteUser": "appuser",
   "updateRemoteUserUID": false, // Dev Container 起動時毎回匿名コンテナ作成対応
-  "workspaceFolder": "/app/frontend",
-  "postStartCommand": "npm ci",
+  "workspaceFolder": "/app/frontend/frontend.code-workspace",
+  // "postStartCommand": "npm ci", // workspaceFolderがファイル指定の場合はエラー発生。dockerComposeFileのcommandで代替コマンドを実行。
   "shutdownAction": "stopCompose",
   "customizations": {
     "vscode": {
@@ -20,22 +20,7 @@
         "bradlc.vscode-tailwindcss",        // Tailwind CSS IntelliSense
         "bierner.github-markdown-preview",  // GitHub Markdown Preview
         "anthropic.claude-code"             // Claude Code for VS Code
-      ],
-      "settings": {
-        "workbench.colorCustomizations": {
-          "titleBar.activeBackground": "#472025",
-          "titleBar.activeForeground": "#FFFFFF",
-          "titleBar.inactiveBackground": "#2A1A1E",
-          "titleBar.inactiveForeground": "#A7B6CC"
-        },
-        "files.encoding": "utf8",
-        "files.eol": "\n",
-        "files.insertFinalNewline": true,
-        "files.trimTrailingWhitespace": true,
-        "editor.tabSize": 2,
-        "editor.insertSpaces": true,
-        "editor.formatOnSave": false
-      }
+      ]
     }
   }
 }

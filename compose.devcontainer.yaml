@@ -1,12 +1,16 @@
 services:
 
   frontend:
-    command: sleep infinity # 二重起動防止 ※ Next.js は frontend/.vscode/launch.json から起動
+    # 二重起動防止 ※ Next.js は frontend/.vscode/launch.json から起動
+    # postStartCommand代替：`npm ci`実行 ※node_modules未作成 または package-lock.json更新時のみ
+    command: sh -c "[ node_modules/.package-lock.json -nt package-lock.json ] || npm ci; exec sleep infinity"
     depends_on:
       backend:
         condition: service_started
 
   backend:
-    command: sleep infinity # 二重起動防止：FastAPI は backend/.vscode/launch.json から起動
+    # 二重起動防止：FastAPI は backend/.vscode/launch.json から起動
+    # postStartCommand代替：起動時に`uv sync`実行 ※失敗してもコンテナは起動する
+    command: sh -c "uv sync --frozen; exec sleep infinity"
     healthcheck:
       disable: true

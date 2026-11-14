@@ -3,7 +3,7 @@
     "deny": [
       "Read(/**/.env.secrets)",
       "Read(/infra/provision/ansible/group_vars/all.yml)",
-      "Read(~/{{ secrets_relative_path }}/**)"
+      "Read(~/.local/share/travel-agent-lab/secrets/**)"
     ]
   },
   "sandbox": {
@@ -14,7 +14,7 @@
       "denyRead": [
         "**/.env.secrets*",
         "infra/provision/ansible/group_vars/all.yml",
-        "~/{{ secrets_relative_path }}"
+        "~/.local/share/travel-agent-lab/secrets"
       ],
       "allowRead": [
         "**/.env.secrets.example"

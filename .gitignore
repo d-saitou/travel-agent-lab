@@ -3,7 +3,6 @@
 .env.*
 !.env.example
 !.env.secrets.example
-.claude/settings.json
 .vscode/launch.json
 data/
 infra/.setup-completed
