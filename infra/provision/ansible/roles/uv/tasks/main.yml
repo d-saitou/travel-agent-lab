@@ -1,0 +1,34 @@
+---
+- name: uv 実行ファイルパス設定 ※後続ロール (spec_kit 等) から参照
+  ansible.builtin.set_fact:
+    uv_command: "/home/{{ app_user_name }}/.local/bin/uv"
+
+- name: uv インストール済みバージョン取得
+  ansible.builtin.shell: |
+    set -o pipefail
+    {{ uv_command }} --version 2>/dev/null | awk '{ print $2 }'
+  args:
+    executable: /bin/bash
+  register: uv_installed_version
+  changed_when: false
+  failed_when: false
+
+- name: uv インストール ※未インストール時 または バージョン指定ありかつ不一致時のみ
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -LsSf "{{ uv_installer_url }}" | env UV_NO_MODIFY_PATH=1 sh
+  args:
+    executable: /bin/bash
+  vars:
+    uv_installer_url: "{{ 'https://astral.sh/uv/install.sh' if uv_version == 'latest' else 'https://astral.sh/uv/' ~ uv_version ~ '/install.sh' }}"
+  when: (uv_installed_version.stdout | trim) == '' or (uv_version != 'latest' and (uv_installed_version.stdout | trim) != uv_version)
+
+- name: .bashrc 更新
+  ansible.builtin.lineinfile:
+    path: "/home/{{ app_user_name }}/.bashrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    state: present
+    create: yes
+    owner: "{{ app_uid }}"
+    group: "{{ app_gid }}"
+    mode: '0644'

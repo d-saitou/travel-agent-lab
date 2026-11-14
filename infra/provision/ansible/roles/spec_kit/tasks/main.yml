@@ -1,0 +1,14 @@
+---
+- name: Specify CLI インストール済みバージョン取得
+  ansible.builtin.shell: |
+    set -o pipefail
+    {{ uv_command }} tool list 2>/dev/null | awk '$1 == "specify-cli" { print $2 }'
+  args:
+    executable: /bin/bash
+  register: specify_installed_version
+  changed_when: false
+
+- name: Specify CLI (GitHub Spec Kit) インストール ※未インストール または バージョン不一致時のみ
+  ansible.builtin.command:
+    cmd: "{{ uv_command }} tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@{{ spec_kit_version }}"
+  when: (specify_installed_version.stdout | trim) != spec_kit_version
