@@ -133,7 +133,8 @@ TBD
 - 構築の流れ：環境構築用コピーの取得 → `bootstrap-dev-env-wsl.ps1`（Windows側） → `provision-dev-env.sh`・Ansible（WSL 2内） → ローカルリポジトリのクローン
 - Windows側・WSL 2内それぞれの処理範囲
 - Dev Hostの作成内容（ディストリビューション、既定ユーザー）
-- Ansibleでプロビジョニングする内容（パッケージ、Git設定、docker CLI、AIコーディング支援ツール等）
+- Ansibleでプロビジョニングする内容（パッケージ、Git設定、docker CLI、AIコーディング支援ツール、uv、Specify CLI等）
+  - uv・Specify CLIはDev Hostのユーザー環境（`~/.local/bin`）に導入し、バージョンは`.env`（`UV_VERSION`、`SPEC_KIT_VERSION`）で指定する。
 - 冪等性の確保方法、再実行・再構築の方針
 - 手順はREADME「3 開発環境利用手順」に委ねる。
 -->
@@ -194,7 +195,8 @@ TBD
 <!-- 記述予定内容：
 - Claude Code・GitHub Copilotの実行場所（Dev Host・Dev Container）と認証方法
 - 生成AIへの指示・ルールファイル（AGENTS.md、CLAUDE.md等）の配置
-- Issue起点の実装を実行する環境（GitHub上の実行基盤、権限設定）
+- GitHub Spec Kit：`specify init`で生成されるファイル（`.specify/`、スキル）と成果物（`specs/`）の配置、対象の生成AI（Claude Code・GitHub Copilot）
+- Issue起点開発を実行する環境（GitHub上の実行基盤、権限設定）
 -->
 
 ## 9 開発環境方針・制約

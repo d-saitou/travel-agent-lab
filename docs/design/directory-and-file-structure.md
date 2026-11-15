@@ -4,8 +4,9 @@
 
 ```text
 travel-agent-lab/                  # リポジトリルート
- ├ .claude/                        # Claude Code設定 ※settings.jsonのみAnsibleで生成、Git管理対象外
- ├ .github/                        # GitHub設定（Issue起点の実装の実行基盤等） ※TBD
+ ├ .claude/                        # Claude Code設定（settings.json、スキル等）
+ ├ .github/                        # GitHub設定（スキル定義、Issue起点開発実行基盤等）
+ ├ .specify/                       # GitHub Spec Kit設定（テンプレート、スクリプト、憲章等）
  ├ .vscode/                        # VS Codeフォルダー設定（launch.json、tasks.json等）
  ├ backend/                        # バックエンドアプリケーション
  │  ├ .devcontainer/               # Dev Container定義（バックエンド）
@@ -29,6 +30,7 @@ travel-agent-lab/                  # リポジトリルート
  │  │  └ provision-dev-env.sh      # 開発環境プロビジョニングスクリプト ※WSLインスタンス内で実行
  │  ├ scripts/                     # 開発作業用スクリプト
  │  └ bootstrap-dev-env-wsl.ps1    # WSLインスタンス・開発環境構築スクリプト ※Windows側で実行
+ ├ specs/                          # Spec Kit成果物（機能ごとの仕様・計画・タスク）
  ├ .env                            # 環境変数定義 ※Git管理対象外
  ├ .env.example                    # 環境変数定義テンプレート
  ├ .env.secrets.example            # 機密情報定義テンプレート
