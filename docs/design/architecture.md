@@ -15,7 +15,7 @@ flowchart LR
 
   EXT["外部LLM API"]
 
-  U -->|"HTTPS / SSE"| FE
+  U -->|"HTTP / SSE"| FE
   FE -->|"REST / SSE"| BE
   BE -->|"SQL"| DB
   BE -->|"HTTP（OpenAI互換API）"| LP
@@ -161,7 +161,7 @@ TBD
 
 ### 6.1 通信経路
 
-- ブラウザ→frontend：HTTPS（開発環境を含む）。
+- ブラウザ→frontend：当面はHTTP（`http://localhost`）とする。HTTPS化は後日検討する（「開発環境」6章参照）。
 - backend：ブラウザから直接呼び出さず、frontend（サーバー側）を経由する。
 - frontend（サーバー側）：backendへの転送・呼び出しのみ行い、業務ロジック・形式変換は実装しない。
 - ブラウザからのリクエスト：Next.jsのproxy（`proxy.ts`）でbackendへrewriteし、セッションCookieはそのまま中継する。適用対象はbackendへの転送パスに限定する。

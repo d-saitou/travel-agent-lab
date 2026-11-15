@@ -94,7 +94,7 @@ flowchart TB
   VSCodeBE <-->|"実行・デバッグ"| BEApp
   BEMount -->|"ソースコード"| BEApp
   FEApp <-->|"REST / SSE"| BEApp
-  Browser <-->|"HTTPS / SSE"| FEApp
+  Browser <-->|"HTTP / SSE"| FEApp
 
   %% LLM / DB
   BEApp <-->|"HTTP（OpenAI互換API）"| LiteLLM
@@ -172,6 +172,8 @@ TBD
 -->
 
 ## 6 HTTPS化
+
+- 当面はHTTPS化せず、ブラウザ（Windows）からfrontendへ`http://localhost`でHTTPアクセスする。HTTPS化は後日検討する。
 
 TBD
 <!-- 記述予定内容：
