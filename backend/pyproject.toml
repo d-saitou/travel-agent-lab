@@ -19,7 +19,7 @@ dev = [
 ]
 
 [tool.uv.build-backend]
-module-name = "server"
+module-name = "app"
 
 [tool.ruff]
 target-version = "py314"
@@ -31,7 +31,7 @@ select = ["E", "F", "I"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
-known-first-party = ["server"]
+known-first-party = ["app"]
 
 [tool.ruff.format]
 quote-style = "double"
